@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrainBuddy - Profile Creation</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1A237E, #303F9F);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .background-animation {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+        }
+        
+        .circle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            animation: float 15s infinite ease-in-out;
+        }
+        
+        .circle:nth-child(1) {
+            width: 150px;
+            height: 150px;
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+        
+        .circle:nth-child(2) {
+            width: 100px;
+            height: 100px;
+            top: 20%;
+            right: 15%;
+            animation-delay: 2s;
+        }
+        
+        .circle:nth-child(3) {
+            width: 200px;
+            height: 200px;
+            bottom: 15%;
+            left: 15%;
+            animation-delay: 4s;
+        }
+        
+        .circle:nth-child(4) {
+            width: 80px;
+            height: 80px;
+            bottom: 25%;
+            right: 20%;
+            animation-delay: 6s;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0) translateX(0);
+            }
+            25% {
+                transform: translateY(-20px) translateX(10px);
+            }
+            50% {
+                transform: translateY(0) translateX(20px);
+            }
+            75% {
+                transform: translateY(20px) translateX(10px);
+            }
+            100% {
+                transform: translateY(0) translateX(0);
+            }
+        }
+        
+        .wave {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg"><path fill="rgba(255, 255, 255, 0.05)" d="M0,192L48,197.3C96,203,192,213,288,229.3C384,245,480,267,576,250.7C672,235,768,181,864,181.3C960,181,1056,235,1152,234.7C1248,235,1344,181,1392,154.7L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>');
+            background-size: 1440px 100px;
+            animation: wave 20s linear infinite;
+        }
+        
+        .wave:nth-child(2) {
+            bottom: 10px;
+            opacity: 0.5;
+            animation: wave 15s linear infinite;
+        }
+        
+        @keyframes wave {
+            0% {
+                background-position-x: 0;
+            }
+            100% {
+                background-position-x: 1440px;
+            }
+        }
+        
+        .container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+        }
+        
+        .logo {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .logo-icon {
+            background-color: #3949AB;
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .train-icon {
+            font-size: 30px;
+            color: white;
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 20px;
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .step {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 5px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .step.active {
+            background: #2196F3;
+        }
+        
+        .step.completed {
+            background: #4CAF50;
+        }
+        
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 15px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 15px 15px 15px 45px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        select {
+            appearance: none;
+            background-image: url('data:image/svg+xml;utf8,<svg fill="white" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 15px top 50%;
+        }
+        
+        select option {
+            background-color: #303F9F;
+            color: white;
+        }
+        
+        input::placeholder, textarea::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            background: #2196F3;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            background: #1E88E5;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.4);
+        }
+        
+        .photo-upload {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .photo-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 15px;
+            overflow: hidden;
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+        }
+        
+        .photo-icon {
+            font-size: 40px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .upload-button {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .upload-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        
+        .back-button {
+            background: rgba(255, 255, 255, 0.2);
+            width: 48%;
+        }
+        
+        .next-button {
+            width: 48%;
+        }
+        
+        .checkbox-group {
+            margin-bottom: 20px;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .checkbox-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+        }
+        
+        .success-icon {
+            font-size: 60px;
+            color: #4CAF50;
+            margin-bottom: 20px;
+        }
+        
+        .center-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        
+        /* High contrast mode */
+        .high-contrast {
+            background: linear-gradient(135deg, #000080, #000033);
+        }
+        
+        .high-contrast .glass-card {
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid white;
+        }
+        
+        .high-contrast input, 
+        .high-contrast select, 
+        .high-contrast textarea {
+            background: #000080;
+            border: 2px solid white;
+        }
+        
+        .high-contrast button {
+            background: #ffffff;
+            color: #000080;
+            border: 2px solid white;
+        }
+        
+        .high-contrast .step.active {
+            background: #ffffff;
+            color: #000080;
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Animation -->
+    <div class="background-animation">
+        <div class="circle"></div>
+        <div class="circle"></div>
+        <div class="circle"></div>
+        <div class="circle"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+    </div>
+
+    <div class="container">
+        <!-- App Logo -->
+        <div class="logo">
+            <div class="logo-icon">
+                <div class="train-icon">🚆</div>
+            </div>
+        </div>
+        
+        <!-- Step 1: Basic Information -->
+        <div class="glass-card">
+            <h2 style="text-align: center; margin-top: 0;">Create Your Profile</h2>
+            
+            <div class="step-indicator">
+                <div class="step active">1</div>
+                <div class="step">2</div>
+                <div class="step">3</div>
+                <div class="step">4</div>
+            </div>
+            
+            <h3 style="margin-top: 0;">Basic Information</h3>
+            
+            <div class="input-group">
+                <div class="input-icon">👤</div>
+                <input type="text" placeholder="Full Name" />
+            </div>
+            
+            <div class="input-group">
+                <div class="input-icon">📅</div>
+                <input type="date" placeholder="Date of Birth" />
+            </div>
+            
+            <div class="input-group">
+                <div class="input-icon">⚧️</div>
+                <select>
+                    <option value="" disabled selected>Select Gender</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                    <option value="prefer_not_to_say">Prefer not to say</option>
+                </select>
+            </div>
+            
+            <div class="navigation-buttons">
+                <button class="back-button">Cancel</button>
+                <button class="next-button">Next</button>
+            </div>
+        </div>
+        
+        <!-- Step 2: Profile Photo -->
+        <div class="glass-card" style="display: none;">
+            <h2 style="text-align: center; margin-top: 0;">Create Your Profile</h2>
+            
+            <div class="step-indicator">
+                <div class="step completed">1</div>
+                <div class="step active">2</div>
+                <div class="step">3</div>
+                <div class="step">4</div>
+            </div>
+            
+            <h3 style="margin-top: 0;">Profile Photo</h3>
+            
+            <div class="photo-upload">
+                <div class="photo-circle">
+                    <div class="photo-icon">📷</div>
+                </div>
+                <div class="upload-button">Upload Photo</div>
+            </div>
+            
+            <p style="text-align: center; opacity: 0.7; font-size: 14px;">
+                Add a photo to help other travelers recognize you.<br>
+                This is optional but recommended.
+            </p>
+            
+            <div class="navigation-buttons">
+                <button class="back-button">Back</button>
+                <button class="next-button">Next</button>
+            </div>
+        </div>
+        
+        <!-- Step 3: Travel Preferences -->
+        <div class="glass-card" style="display: none;">
+            <h2 style="text-align: center; margin-top: 0;">Create Your Profile</h2>
+            
+            <div class="step-indicator">
+                <div class="step completed">1</div>
+                <div class="step completed">2</div>
+                <div class="step active">3</div>
+                <div class="step">4</div>
+            </div>
+            
+            <h3 style="margin-top: 0;">Travel Preferences</h3>
+            
+            <div class="input-group">
+                <div class="input-icon">🗣️</div>
+                <select>
+                    <option value="" disabled selected>Preferred Language</option>
+                    <option value="english">English</option>
+                    <option value="hindi">Hindi</option>
+                    <option value="tamil">Tamil</option>
+                    <option value="telugu">Telugu</option>
+                    <option value="bengali">Bengali</option>
+                    <option value="marathi">Marathi</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            
+            <div class="checkbox-group">
+                <h4 style="margin-bottom: 10px;">Travel Interests</h4>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="conversation" />
+                    <label for="conversation">Conversation</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="quiet" />
+                    <label for="quiet">Quiet Travel</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="food" />
+                    <label for="food">Food Sharing</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="games" />
+                    <label for="games">Games & Entertainment</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="help" />
+                    <label for="help">Help with Luggage/Boarding</label>
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <div class="input-icon">📝</div>
+                <textarea placeholder="Brief bio (optional)"></textarea>
+            </div>
+            
+            <div class="navigation-buttons">
+                <button class="back-button">Back</button>
+                <button class="next-button">Next</button>
+            </div>
+        </div>
+        
+        <!-- Step 4: Emergency Contact -->
+        <div class="glass-card" style="display: none;">
+            <h2 style="text-align: center; margin-top: 0;">Create Your Profile</h2>
+            
+            <div class="step-indicator">
+                <div class="step completed">1</div>
+                <div class="step completed">2</div>
+                <div class="step completed">3</div>
+                <div class="step active">4</div>
+            </div>
+            
+            <h3 style="margin-top: 0;">Emergency Contact</h3>
+            
+            <div class="input-group">
+                <div class="input-icon">👤</div>
+                <input type="text" placeholder="Contact Name" />
+            </div>
+            
+            <div class="input-group">
+                <div class="input-icon">📱</div>
+                <input type="tel" placeholder="Contact Phone Number" />
+            </div>
+            
+            <div class="input-group">
+                <div class="input-icon">👪</div>
+                <select>
+                    <option value="" disabled selected>Relationship</option>
+                    <option value="parent">Parent</option>
+                    <option value="spouse">Spouse</option>
+                    <option value="sibling">Sibling</option>
+                    <option value="friend">Friend</option>
+                    <option value="relative">Other Relative</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            
+            <p style="text-align: center; opacity: 0.7; font-size: 14px;">
+                This information will only be used in case of emergency.
+            </p>
+            
+            <div class="navigation-buttons">
+                <button class="back-button">Back</button>
+                <button class="next-button">Complete</button>
+            </div>
+        </div>
+        
+        <!-- Success Screen -->
+        <div class="glass-card" style="display: none;">
+            <div class="center-content">
+                <div class="success-icon">✅</div>
+                <h2 style="margin-top: 0;">Profile Created!</h2>
+                <p style="opacity: 0.7; margin-bottom: 30px;">
+                    Your profile has been successfully created. You're now ready to use all features of TrainBuddy!
+                </p>
+                <button>Go to Home</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="PyPackageRequirementsInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredPackages">
+        <value>
+          <list size="11">
+            <item index="0" class="java.lang.String" itemvalue="fastapi" />
+            <item index="1" class="java.lang.String" itemvalue="pydantic" />
+            <item index="2" class="java.lang.String" itemvalue="python-json-logger" />
+            <item index="3" class="java.lang.String" itemvalue="pytest" />
+            <item index="4" class="java.lang.String" itemvalue="starlette" />
+            <item index="5" class="java.lang.String" itemvalue="typing_extensions" />
+            <item index="6" class="java.lang.String" itemvalue="python-dotenv" />
+            <item index="7" class="java.lang.String" itemvalue="torch" />
+            <item index="8" class="java.lang.String" itemvalue="starlette-prometheus" />
+            <item index="9" class="java.lang.String" itemvalue="uvicorn" />
+            <item index="10" class="java.lang.String" itemvalue="mlflow" />
+          </list>
+        </value>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="QodanaSanity" enabled="true" level="ERROR" enabled_by_default="true" />
+    <inspection_tool class="RestRoleInspection" enabled="true" level="WARNING" enabled_by_default="true" />
+  </profile>
+</component>

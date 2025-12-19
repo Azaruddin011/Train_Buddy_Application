@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrainBuddy UI Preview</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            background: linear-gradient(135deg, #1A237E, #303F9F);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            margin: 0;
+            font-size: 2.5rem;
+        }
+        .subtitle {
+            opacity: 0.8;
+            margin-top: 10px;
+        }
+        .screens-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: center;
+        }
+        .screen {
+            background-color: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .screen:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+        .screen-header {
+            background: linear-gradient(135deg, #1A237E, #303F9F);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .screen-content {
+            padding: 20px;
+        }
+        .mockup {
+            width: 100%;
+            height: 500px;
+            background-color: #f0f0f0;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .mockup-header {
+            height: 40px;
+            background-color: #1A237E;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+        }
+        .mockup-body {
+            flex: 1;
+            background: linear-gradient(135deg, #1A237E, #303F9F);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            overflow: auto;
+        }
+        .status-icons {
+            display: flex;
+            gap: 5px;
+        }
+        .status-icon {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        .red { background-color: #ff5f57; }
+        .yellow { background-color: #febc2e; }
+        .green { background-color: #28c840; }
+        
+        .app-icon {
+            width: 80px;
+            height: 80px;
+            background-color: #3949AB;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        .app-icon i {
+            font-size: 40px;
+            color: white;
+        }
+        .app-title {
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .app-subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 30px;
+        }
+        
+        .auth-options {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            width: 100%;
+            max-width: 280px;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 20px;
+        }
+        .auth-option {
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .auth-option:last-child {
+            border-bottom: none;
+        }
+        .auth-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+        }
+        .login-icon {
+            background-color: rgba(100, 181, 246, 0.2);
+            color: #64B5F6;
+        }
+        .signup-icon {
+            background-color: rgba(129, 199, 132, 0.2);
+            color: #81C784;
+        }
+        .auth-text {
+            flex: 1;
+        }
+        .auth-title {
+            color: white;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        .auth-subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 12px;
+        }
+        .auth-arrow {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 12px;
+        }
+        
+        .input-form {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            width: 100%;
+            max-width: 280px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .form-title {
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .form-subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        .input-field {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .input-icon {
+            color: rgba(255, 255, 255, 0.7);
+            margin-right: 10px;
+        }
+        .input-placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        .button {
+            background-color: #64B5F6;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 12px;
+            width: 100%;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        
+        .home-card {
+            background: linear-gradient(135deg, #3949AB, #5C6BC0);
+            border-radius: 15px;
+            width: 100%;
+            max-width: 280px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        .home-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .home-icon {
+            width: 50px;
+            height: 50px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+        }
+        .home-title {
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        .home-subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 12px;
+        }
+        .feature-chips {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .feature-chip {
+            background-color: rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            padding: 8px 0;
+            width: 23%;
+            text-align: center;
+        }
+        .chip-icon {
+            color: white;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+        .chip-text {
+            color: white;
+            font-size: 10px;
+        }
+        
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            width: 100%;
+            max-width: 280px;
+        }
+        .grid-card {
+            background: linear-gradient(135deg, #00BCD4, #0097A7);
+            border-radius: 15px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        .grid-card:nth-child(2) {
+            background: linear-gradient(135deg, #FF5722, #E64A19);
+        }
+        .grid-card:nth-child(3) {
+            background: linear-gradient(135deg, #4CAF50, #388E3C);
+        }
+        .grid-card:nth-child(4) {
+            background: linear-gradient(135deg, #9C27B0, #7B1FA2);
+        }
+        .grid-icon {
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+        .grid-title {
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 4px;
+            text-align: center;
+        }
+        .grid-subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 10px;
+            text-align: center;
+        }
+        
+        .scroll-container {
+            width: 100%;
+            max-width: 280px;
+            overflow-x: auto;
+            margin-bottom: 20px;
+        }
+        .scroll-content {
+            display: flex;
+            gap: 15px;
+            padding: 5px;
+        }
+        .scroll-card {
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+            min-width: 120px;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        .scroll-card:nth-child(2) {
+            background: linear-gradient(135deg, #E91E63, #C2185B);
+        }
+        .scroll-card:nth-child(3) {
+            background: linear-gradient(135deg, #FF9800, #F57C00);
+        }
+        .scroll-icon {
+            width: 30px;
+            height: 30px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+        .scroll-title {
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+        .scroll-subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 10px;
+        }
+        
+        .premium-card {
+            background: linear-gradient(135deg, #FFD700, #FFA000);
+            border-radius: 15px;
+            width: 100%;
+            max-width: 280px;
+            padding: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+        .premium-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .premium-icon {
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+        }
+        .premium-features {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .premium-feature {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 30%;
+        }
+        .premium-button {
+            background-color: white;
+            color: #FFA000;
+            border: none;
+            border-radius: 10px;
+            padding: 12px;
+            width: 100%;
+            font-weight: bold;
+            text-align: center;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>TrainBuddy UI Preview</h1>
+            <p class="subtitle">Modern 3D Design with Animations</p>
+        </header>
+        
+        <div class="screens-container">
+            <!-- Login Screen -->
+            <div class="screen">
+                <div class="screen-header">Login Screen</div>
+                <div class="screen-content">
+                    <div class="mockup">
+                        <div class="mockup-header">
+                            <div class="status-icons">
+                                <div class="status-icon red"></div>
+                                <div class="status-icon yellow"></div>
+                                <div class="status-icon green"></div>
+                            </div>
+                        </div>
+                        <div class="mockup-body">
+                            <div class="app-icon">
+                                <i class="fas fa-train"></i>
+                            </div>
+                            <div class="app-title">TrainBuddy</div>
+                            <div class="app-subtitle">Your journey companion</div>
+                            
+                            <div class="auth-options">
+                                <div class="auth-option">
+                                    <div class="auth-icon login-icon">
+                                        <i class="fas fa-sign-in-alt"></i>
+                                    </div>
+                                    <div class="auth-text">
+                                        <div class="auth-title">Login</div>
+                                        <div class="auth-subtitle">Sign in to your account</div>
+                                    </div>
+                                    <div class="auth-arrow">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </div>
+                                </div>
+                                <div class="auth-option">
+                                    <div class="auth-icon signup-icon">
+                                        <i class="fas fa-user-plus"></i>
+                                    </div>
+                                    <div class="auth-text">
+                                        <div class="auth-title">Create Account</div>
+                                        <div class="auth-subtitle">Register as new user</div>
+                                    </div>
+                                    <div class="auth-arrow">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Phone Input Screen -->
+            <div class="screen">
+                <div class="screen-header">Phone Input Screen</div>
+                <div class="screen-content">
+                    <div class="mockup">
+                        <div class="mockup-header">
+                            <div class="status-icons">
+                                <div class="status-icon red"></div>
+                                <div class="status-icon yellow"></div>
+                                <div class="status-icon green"></div>
+                            </div>
+                        </div>
+                        <div class="mockup-body">
+                            <div class="app-icon">
+                                <i class="fas fa-train"></i>
+                            </div>
+                            <div class="app-title">TrainBuddy</div>
+                            <div class="app-subtitle">Your journey companion</div>
+                            
+                            <div class="input-form">
+                                <div class="form-title">Login</div>
+                                <div class="form-subtitle">Enter your phone number to continue</div>
+                                
+                                <div class="input-field">
+                                    <div class="input-icon">
+                                        <i class="fas fa-phone"></i>
+                                    </div>
+                                    <div class="input-placeholder">10-digit number</div>
+                                </div>
+                                
+                                <div class="button">Send OTP</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- OTP Screen -->
+            <div class="screen">
+                <div class="screen-header">OTP Verification Screen</div>
+                <div class="screen-content">
+                    <div class="mockup">
+                        <div class="mockup-header">
+                            <div class="status-icons">
+                                <div class="status-icon red"></div>
+                                <div class="status-icon yellow"></div>
+                                <div class="status-icon green"></div>
+                            </div>
+                        </div>
+                        <div class="mockup-body">
+                            <div class="app-icon">
+                                <i class="fas fa-train"></i>
+                            </div>
+                            <div class="app-title">TrainBuddy</div>
+                            <div class="app-subtitle">Your journey companion</div>
+                            
+                            <div class="input-form">
+                                <div class="form-title">Verify OTP</div>
+                                <div class="form-subtitle">Sent to +91-9876543210</div>
+                                
+                                <div class="input-field">
+                                    <div class="input-icon">
+                                        <i class="fas fa-sms"></i>
+                                    </div>
+                                    <div class="input-placeholder">6-digit code</div>
+                                </div>
+                                
+                                <div class="button">Verify OTP</div>
+                                <div style="text-align: center; color: rgba(255, 255, 255, 0.7); font-size: 14px;">Change Phone Number</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Home Screen -->
+            <div class="screen">
+                <div class="screen-header">Home Screen</div>
+                <div class="screen-content">
+                    <div class="mockup">
+                        <div class="mockup-header">
+                            <div class="status-icons">
+                                <div class="status-icon red"></div>
+                                <div class="status-icon yellow"></div>
+                                <div class="status-icon green"></div>
+                            </div>
+                        </div>
+                        <div class="mockup-body" style="align-items: flex-start; padding-top: 60px;">
+                            <div style="width: 100%; text-align: center; margin-bottom: 20px;">
+                                <div class="app-title">TrainBuddy</div>
+                            </div>
+                            
+                            <div class="home-card">
+                                <div class="home-header">
+                                    <div class="home-icon">
+                                        <i class="fas fa-train" style="color: white;"></i>
+                                    </div>
+                                    <div>
+                                        <div class="home-title">Welcome to TrainBuddy</div>
+                                        <div class="home-subtitle">Your ultimate train companion</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="feature-chips">
+                                    <div class="feature-chip">
+                                        <div class="chip-icon">
+                                            <i class="fas fa-users"></i>
+                                        </div>
+                                        <div class="chip-text">Connect</div>
+                                    </div>
+                                    <div class="feature-chip">
+                                        <div class="chip-icon">
+                                            <i class="fas fa-ticket-alt"></i>
+                                        </div>
+                                        <div class="chip-text">PNR</div>
+                                    </div>
+                                    <div class="feature-chip">
+                                        <div class="chip-icon">
+                                            <i class="fas fa-train"></i>
+                                        </div>
+                                        <div class="chip-text">Status</div>
+                                    </div>
+                                    <div class="feature-chip">
+                                        <div class="chip-icon">
+                                            <i class="fas fa-chair"></i>
+                                        </div>
+                                        <div class="chip-text">Seats</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div style="width: 100%; margin-bottom: 15px;">
+                                <div style="color: rgba(255, 255, 255, 0.9); font-weight: bold; margin-bottom: 10px;">Core Services</div>
+                            </div>
+                            
+                            <div class="grid-container">
+                                <div class="grid-card">
+                                    <div class="grid-icon">
+                                        <i class="fas fa-users" style="color: white;"></i>
+                                    </div>
+                                    <div class="grid-title">Seek Buddy</div>
+                                    <div class="grid-subtitle">Connect with passengers</div>
+                                </div>
+                                <div class="grid-card">
+                                    <div class="grid-icon">
+                                        <i class="fas fa-ticket-alt" style="color: white;"></i>
+                                    </div>
+                                    <div class="grid-title">Check PNR</div>
+                                    <div class="grid-subtitle">Get journey status</div>
+                                </div>
+                                <div class="grid-card">
+                                    <div class="grid-icon">
+                                        <i class="fas fa-chair" style="color: white;"></i>
+                                    </div>
+                                    <div class="grid-title">Offer Seat</div>
+                                    <div class="grid-subtitle">Help waitlisted</div>
+                                </div>
+                                <div class="grid-card">
+                                    <div class="grid-icon">
+                                        <i class="fas fa-chart-line" style="color: white;"></i>
+                                    </div>
+                                    <div class="grid-title">Confirmation</div>
+                                    <div class="grid-subtitle">Check chances</div>
+                                </div>
+                            </div>
+                            
+                            <div style="width: 100%; margin: 15px 0;">
+                                <div style="color: rgba(255, 255, 255, 0.9); font-weight: bold; margin-bottom: 10px; display: flex; align-items: center;">
+                                    Train Services
+                                    <span style="background-color: #FFD700; color: black; font-size: 10px; padding: 2px 6px; border-radius: 10px; margin-left: 8px;">NEW</span>
+                                </div>
+                            </div>
+                            
+                            <div class="scroll-container">
+                                <div class="scroll-content">
+                                    <div class="scroll-card">
+                                        <div class="scroll-icon">
+                                            <i class="fas fa-train" style="color: white;"></i>
+                                        </div>
+                                        <div class="scroll-title">Train Search</div>
+                                        <div class="scroll-subtitle">Find trains</div>
+                                    </div>
+                                    <div class="scroll-card">
+                                        <div class="scroll-icon">
+                                            <i class="fas fa-map-marker-alt" style="color: white;"></i>
+                                        </div>
+                                        <div class="scroll-title">Live Status</div>
+                                        <div class="scroll-subtitle">Track in real-time</div>
+                                    </div>
+                                    <div class="scroll-card">
+                                        <div class="scroll-icon">
+                                            <i class="fas fa-chair" style="color: white;"></i>
+                                        </div>
+                                        <div class="scroll-title">Seat Availability</div>
+                                        <div class="scroll-subtitle">Check status</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div style="width: 100%; margin-bottom: 15px;">
+                                <div style="color: rgba(255, 255, 255, 0.9); font-weight: bold; margin-bottom: 10px;">Premium Features</div>
+                            </div>
+                            
+                            <div class="premium-card">
+                                <div class="premium-header">
+                                    <div class="premium-icon">
+                                        <i class="fas fa-star" style="color: white;"></i>
+                                    </div>
+                                    <div>
+                                        <div class="home-title">Premium Coordination</div>
+                                        <div class="home-subtitle">Guaranteed seat for waitlisted</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="premium-features">
+                                    <div class="premium-feature">
+                                        <i class="fas fa-user-shield" style="color: white; margin-bottom: 5px;"></i>
+                                        <div style="color: white; font-size: 10px;">Verified Buddies</div>
+                                    </div>
+                                    <div class="premium-feature">
+                                        <i class="fas fa-headset" style="color: white; margin-bottom: 5px;"></i>
+                                        <div style="color: white; font-size: 10px;">Priority Support</div>
+                                    </div>
+                                    <div class="premium-feature">
+                                        <i class="fas fa-tachometer-alt" style="color: white; margin-bottom: 5px;"></i>
+                                        <div style="color: white; font-size: 10px;">Fast Matching</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="premium-button">Upgrade Now</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
