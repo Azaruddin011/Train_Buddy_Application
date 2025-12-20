@@ -723,15 +723,15 @@ class ProfileBackgroundPainter extends CustomPainter {
     final circleCount = 5;
     for (int i = 0; i < circleCount; i++) {
       final progress = (animation + i / circleCount) % 1.0;
-      final size = 100.0 + 50.0 * i;
+      final circleSize = 100.0 + 50.0 * i;
       final x = size.width * (0.2 + 0.6 * i / circleCount) + math.sin(animation * math.pi * 2 + i) * 30;
-      final y = -size / 2 + progress * (size.height + size);
+      final y = -circleSize / 2 + progress * (size.height + circleSize);
       
       final circlePaint = Paint()
         ..color = Colors.white.withOpacity(0.03 + 0.02 * i)
         ..style = PaintingStyle.fill;
         
-      canvas.drawCircle(Offset(x, y), size, circlePaint);
+      canvas.drawCircle(Offset(x, y), circleSize, circlePaint);
     }
     
     // Draw animated lines

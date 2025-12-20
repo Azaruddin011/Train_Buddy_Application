@@ -8,11 +8,7 @@ class PnrService {
   PnrService({required ApiClient apiClient}) : _apiClient = apiClient;
 
   Future<PnrResult> lookup(String pnr) async {
-    final response = await _apiClient.post('/pnr/lookup', {'pnr': pnr}, auth: true);
-    if (response.statusCode != 200) {
-      throw Exception('PNR lookup failed');
-    }
-    final json = jsonDecode(response.body);
+    final json = await _apiClient.post('/pnr/lookup', {'pnr': pnr});
     if (!json['success']) {
       throw Exception(json['message'] ?? 'PNR lookup failed');
     }

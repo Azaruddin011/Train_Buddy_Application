@@ -75,9 +75,6 @@ class _ModernHomeScreenState extends State<ModernHomeScreen> with SingleTickerPr
     
     // Update animation controller based on device capabilities
     _updateAnimationSettings();
-    
-    // Listen for system changes in accessibility settings
-    MediaQuery.of(context).addListener(_checkAccessibilityChanges);
   }
   
   void _updateAnimationSettings() {
@@ -154,7 +151,6 @@ class _ModernHomeScreenState extends State<ModernHomeScreen> with SingleTickerPr
   
   @override
   void dispose() {
-    MediaQuery.maybeOf(context)?.removeListener(_checkAccessibilityChanges);
     _animationController.dispose();
     _scrollController.dispose();
     super.dispose();
@@ -235,7 +231,7 @@ class _ModernHomeScreenState extends State<ModernHomeScreen> with SingleTickerPr
               physics: const BouncingScrollPhysics(),
               slivers: [
                 // Show skeleton UI while loading
-                if (_isLoading) ..._buildSkeletonUI() else ...
+                if (_isLoading) ..._buildSkeletonUI() else ...[
                 // Welcome header
                 SliverToBoxAdapter(
                   child: _buildWelcomeHeader(),
@@ -361,11 +357,7 @@ class _ModernHomeScreenState extends State<ModernHomeScreen> with SingleTickerPr
                           'Find trains between stations',
                           Icons.train,
                           const Color(0xFF2196F3),
-                          () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Train search feature coming soon!')),
-                            );
-                          },
+                          () => Navigator.pushNamed(context, '/train-search'),
                         ),
                         _buildHorizontalCard(
                           context,
@@ -373,11 +365,7 @@ class _ModernHomeScreenState extends State<ModernHomeScreen> with SingleTickerPr
                           'Track your train in real-time',
                           Icons.location_on,
                           const Color(0xFFE91E63),
-                          () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Live status feature coming soon!')),
-                            );
-                          },
+                          () => Navigator.pushNamed(context, '/live-status'),
                         ),
                         _buildHorizontalCard(
                           context,
@@ -385,11 +373,7 @@ class _ModernHomeScreenState extends State<ModernHomeScreen> with SingleTickerPr
                           'Check seat status',
                           Icons.event_seat,
                           const Color(0xFFFF9800),
-                          () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Seat availability feature coming soon!')),
-                            );
-                          },
+                          () => Navigator.pushNamed(context, '/seat-availability'),
                         ),
                         _buildHorizontalCard(
                           context,
@@ -409,11 +393,7 @@ class _ModernHomeScreenState extends State<ModernHomeScreen> with SingleTickerPr
                           'Check ticket prices',
                           Icons.attach_money,
                           const Color(0xFF009688),
-                          () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Fare enquiry feature coming soon!')),
-                            );
-                          },
+                          () => Navigator.pushNamed(context, '/fare-enquiry'),
                         ),
                       ],
                     ),
@@ -447,6 +427,7 @@ class _ModernHomeScreenState extends State<ModernHomeScreen> with SingleTickerPr
                 const SliverToBoxAdapter(
                   child: SizedBox(height: 40),
                 ),
+                ],
               ],
             ),
           ),

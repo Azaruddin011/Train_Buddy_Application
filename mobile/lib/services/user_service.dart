@@ -20,7 +20,7 @@ class UserService {
   }) async {
     final response = await _apiClient.post(
       '/users/profile',
-      body: {
+      {
         'phoneNumber': phoneNumber,
         if (name != null) 'name': name,
         if (email != null) 'email': email,
@@ -51,7 +51,7 @@ class UserService {
   }) async {
     final response = await _apiClient.post(
       '/users/preferences',
-      body: {
+      {
         'phoneNumber': phoneNumber,
         if (seatPreference != null) 'seatPreference': seatPreference,
         if (trainClasses != null) 'trainClasses': trainClasses,
@@ -72,7 +72,7 @@ class UserService {
   }) async {
     final response = await _apiClient.post(
       '/users/verification',
-      body: {
+      {
         'phoneNumber': phoneNumber,
         if (idVerified != null) 'idVerified': idVerified,
         if (idType != null) 'idType': idType,
@@ -92,7 +92,7 @@ class UserService {
   }) async {
     final response = await _apiClient.post(
       '/users/photo',
-      body: {
+      {
         'phoneNumber': phoneNumber,
         'photoUrl': photoUrl,
       },

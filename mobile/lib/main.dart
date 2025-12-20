@@ -9,6 +9,10 @@ import 'screens/find_buddy_intro_screen.dart';
 import 'screens/paywall_screen.dart';
 import 'screens/buddy_match_screen.dart';
 import 'screens/profile_creation_screen.dart';
+import 'screens/train_search_screen.dart';
+import 'screens/live_train_status_screen.dart';
+import 'screens/seat_availability_screen.dart';
+import 'screens/fare_enquiry_screen.dart';
 import 'services/token_store.dart';
 import 'widgets/offline_banner.dart';
 
@@ -44,6 +48,10 @@ class TrainBuddyApp extends StatelessWidget {
         '/find-buddy-intro': (context) => const FindBuddyIntroScreen(),
         '/paywall': (context) => const PaywallScreen(),
         '/buddy-match': (context) => const BuddyMatchScreen(),
+        '/train-search': (context) => const TrainSearchScreen(),
+        '/live-status': (context) => const LiveTrainStatusScreen(),
+        '/seat-availability': (context) => const SeatAvailabilityScreen(),
+        '/fare-enquiry': (context) => const FareEnquiryScreen(),
       },
     );
   }
