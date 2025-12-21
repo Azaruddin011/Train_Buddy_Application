@@ -3,6 +3,7 @@ require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
 const express = require('express');
 const cors = require('cors');
+const mongoose = require('mongoose');
 
 const authRoutes = require('./routes/auth');
 const pnrRoutes = require('./routes/pnr');
@@ -11,12 +12,19 @@ const buddyRoutes = require('./routes/buddies');
 const trainRoutes = require('./routes/trains');
 const userRoutes = require('./routes/users');
 
+// MongoDB Connection
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/trainbuddy';
+
+mongoose.connect(MONGODB_URI)
+  .then(() => console.log('✅ Connected to MongoDB'))
+  .catch(err => console.error('❌ MongoDB connection error:', err));
+
 const app = express();
 app.use(cors());
 app.use(express.json());
 
 app.get('/health', (req, res) => {
-  res.json({ ok: true });
+  res.json({ ok: true, database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected' });
 });
 
 app.use('/auth', authRoutes);
