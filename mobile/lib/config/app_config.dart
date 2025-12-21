@@ -13,7 +13,7 @@ class AppConfig {
 
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
-        return 'http://10.118.161.187:4000';
+        return 'http://10.83.179.187:4000';
       default:
         return 'http://localhost:4000';
     }
