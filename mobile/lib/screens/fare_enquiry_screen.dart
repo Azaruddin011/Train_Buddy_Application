@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../services/api_client.dart';
 import '../config/app_config.dart';
 import '../services/token_store.dart';
+import '../services/station_repository.dart';
+import '../widgets/station_autocomplete_field.dart';
 
 class FareEnquiryScreen extends StatefulWidget {
   const FareEnquiryScreen({super.key});
@@ -33,10 +35,10 @@ class _FareEnquiryScreenState extends State<FareEnquiryScreen> {
 
   Future<void> _getFare() async {
     final trainNumber = _trainNumberController.text.trim();
-    final from = _fromController.text.trim();
-    final to = _toController.text.trim();
+    final fromInput = _fromController.text.trim();
+    final toInput = _toController.text.trim();
 
-    if (trainNumber.isEmpty || from.isEmpty || to.isEmpty) {
+    if (trainNumber.isEmpty || fromInput.isEmpty || toInput.isEmpty) {
       setState(() => _errorMessage = 'Please fill all fields');
       return;
     }
@@ -48,6 +50,20 @@ class _FareEnquiryScreenState extends State<FareEnquiryScreen> {
     });
 
     try {
+      await StationRepository.instance.ensureLoaded();
+      final from = StationRepository.instance.resolveCodeFromInput(fromInput);
+      final to = StationRepository.instance.resolveCodeFromInput(toInput);
+
+      if (from == null || to == null) {
+        if (mounted) {
+          setState(() {
+            _errorMessage = 'Please select valid stations (e.g., NDLS, MAS)';
+            _isLoading = false;
+          });
+        }
+        return;
+      }
+
       final response = await _apiClient.get(
         '/trains/fare?trainNumber=$trainNumber&from=$from&to=$to',
       );
@@ -113,11 +129,14 @@ class _FareEnquiryScreenState extends State<FareEnquiryScreen> {
                 Row(
                   children: [
                     Expanded(
-                      child: TextField(
+                      child: StationAutocompleteField(
                         controller: _fromController,
+                        labelText: 'From Station',
+                        hintText: 'Type station name or code',
+                        textStyle: const TextStyle(color: Colors.white),
                         decoration: InputDecoration(
                           labelText: 'From Station',
-                          hintText: 'Station code',
+                          hintText: 'Type station name or code',
                           labelStyle: const TextStyle(color: Colors.white70),
                           hintStyle: const TextStyle(color: Colors.white38),
                           filled: true,
@@ -127,16 +146,18 @@ class _FareEnquiryScreenState extends State<FareEnquiryScreen> {
                             borderSide: BorderSide.none,
                           ),
                         ),
-                        style: const TextStyle(color: Colors.white),
                       ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: TextField(
+                      child: StationAutocompleteField(
                         controller: _toController,
+                        labelText: 'To Station',
+                        hintText: 'Type station name or code',
+                        textStyle: const TextStyle(color: Colors.white),
                         decoration: InputDecoration(
                           labelText: 'To Station',
-                          hintText: 'Station code',
+                          hintText: 'Type station name or code',
                           labelStyle: const TextStyle(color: Colors.white70),
                           hintStyle: const TextStyle(color: Colors.white38),
                           filled: true,
@@ -146,7 +167,6 @@ class _FareEnquiryScreenState extends State<FareEnquiryScreen> {
                             borderSide: BorderSide.none,
                           ),
                         ),
-                        style: const TextStyle(color: Colors.white),
                       ),
                     ),
                   ],

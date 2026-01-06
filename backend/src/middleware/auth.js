@@ -1,3 +1,5 @@
+const jwt = require('jsonwebtoken');
+
 module.exports = function auth(req, res, next) {
   const header = req.headers.authorization || '';
   const token = header.replace('Bearer ', '').trim();
@@ -10,7 +12,24 @@ module.exports = function auth(req, res, next) {
     });
   }
 
-  // TODO: replace with real token validation
-  req.user = { id: 'user_123', phone: '+910000000000' };
-  next();
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    return res.status(500).json({
+      success: false,
+      errorCode: 'AUTH_CONFIG_MISSING',
+      message: 'JWT secret not configured.'
+    });
+  }
+
+  try {
+    const payload = jwt.verify(token, secret);
+    req.user = payload;
+    return next();
+  } catch (err) {
+    return res.status(401).json({
+      success: false,
+      errorCode: 'UNAUTHORIZED',
+      message: 'Invalid or expired token.'
+    });
+  }
 };

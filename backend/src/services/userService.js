@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const User = require('../models/user');
 const ApiError = require('../utils/apiError');
 
@@ -10,6 +11,12 @@ class UserService {
    */
   async createOrUpdateUser(phoneNumber, userData = {}) {
     try {
+      // Check if MongoDB is connected
+      if (mongoose.connection.readyState !== 1) {
+        // MongoDB not connected, return mock user
+        return this._createMockUserResponse(phoneNumber, userData);
+      }
+      
       // Find user by phone number
       let user = await User.findOne({ phoneNumber });
       
@@ -205,12 +212,53 @@ class UserService {
    * @returns {Object} - Sanitized user object
    */
   _sanitizeUser(user) {
-    const sanitized = user.toObject();
+    const sanitized = user.toObject ? user.toObject() : user;
     
     // Remove sensitive fields
     delete sanitized.__v;
     
     return sanitized;
+  }
+  
+  /**
+   * Create a mock user response when MongoDB is not available
+   * @private
+   * @param {string} phoneNumber - User's phone number
+   * @param {Object} userData - User data to include
+   * @returns {Object} - Mock user response
+   */
+  _createMockUserResponse(phoneNumber, userData = {}) {
+    console.log('Using mock user data due to MongoDB connection issue');
+    
+    // Create a mock user object with provided data
+    const mockUser = {
+      _id: 'mock_' + Date.now(),
+      phoneNumber,
+      name: userData.name || '',
+      email: userData.email || '',
+      ageGroup: userData.ageGroup || '',
+      emergencyContact: userData.emergencyContact || '',
+      profileCompleteness: 20,
+      preferences: {
+        seatPreference: 'no preference',
+        trainClasses: ['SL', '3A', '2A', '1A'],
+        dietaryPreference: 'no preference',
+        specialAssistance: false
+      },
+      verification: {
+        idVerified: false,
+        idType: 'none',
+        socialMediaLinked: false
+      },
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    
+    return {
+      success: true,
+      user: mockUser,
+      isMockData: true
+    };
   }
 }
 

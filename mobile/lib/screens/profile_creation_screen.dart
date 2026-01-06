@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
-import '../services/api_client.dart';
+import '../services/api_client.dart' show ApiClient, ApiException;
 import '../services/auth_service.dart';
 import '../services/user_service.dart';
 import '../services/token_store.dart';
@@ -104,13 +104,6 @@ class _ProfileCreationScreenState extends State<ProfileCreationScreen> with Sing
     });
     
     try {
-      // Create a temporary photo URL (in a real app, we'd upload the image)
-      String? photoUrl;
-      if (_profileImage != null) {
-        // This would be replaced with actual image upload
-        photoUrl = 'https://example.com/photos/user_${widget.phoneNumber}.jpg';
-      }
-      
       // Update user profile with basic info
       await _userService.updateProfile(
         phoneNumber: widget.phoneNumber,
@@ -121,10 +114,10 @@ class _ProfileCreationScreenState extends State<ProfileCreationScreen> with Sing
       );
       
       // Update profile photo if selected
-      if (photoUrl != null) {
+      if (_profileImage != null) {
         await _userService.updateProfilePhoto(
           phoneNumber: widget.phoneNumber,
-          photoUrl: photoUrl,
+          photoFile: _profileImage!,
         );
       }
       
@@ -133,7 +126,12 @@ class _ProfileCreationScreenState extends State<ProfileCreationScreen> with Sing
       }
     } catch (e) {
       setState(() {
-        _errorMessage = e.toString();
+        // Format the error message properly
+        if (e is ApiException) {
+          _errorMessage = e.message;
+        } else {
+          _errorMessage = 'An error occurred: ${e.toString()}';
+        }
         _isLoading = false;
       });
     }

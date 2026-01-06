@@ -6,7 +6,42 @@ class FindBuddyIntroScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final pnrResult = ModalRoute.of(context)!.settings.arguments as PnrResult;
+    final args = ModalRoute.of(context)?.settings.arguments;
+    final pnrResult = args is PnrResult ? args : null;
+
+    if (pnrResult == null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Find a Confirmed Co‑Passenger')),
+        body: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(height: 40),
+              Text(
+                'Please verify your PNR first to find buddies for your journey.',
+                style: Theme.of(context).textTheme.bodyMedium,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/pnr');
+                },
+                child: const Text('Verify PNR'),
+              ),
+              const SizedBox(height: 12),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('Go back'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(title: const Text('Find a Confirmed Co‑Passenger')),

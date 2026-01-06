@@ -159,8 +159,10 @@ class JourneyClarityScreen extends StatelessWidget {
             else
               ElevatedButton(
                 onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Helper flow for confirmed passengers – coming soon')),
+                  Navigator.pushNamed(
+                    context,
+                    '/offer-seat',
+                    arguments: pnrResult,
                   );
                 },
                 child: const Text('Help a Waitlisted Passenger'),

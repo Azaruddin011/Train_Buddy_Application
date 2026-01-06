@@ -1,0 +1,6 @@
+.DS_Store
+**/.DS_Store
+
+# Ignore accidental duplicate iOS generated files
+mobile/ios/Flutter/Generated 2.xcconfig
+mobile/ios/Flutter/flutter_export_environment 2.sh

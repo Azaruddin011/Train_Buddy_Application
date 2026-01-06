@@ -269,7 +269,7 @@ class _ModernHomeScreenState extends State<ModernHomeScreen> with SingleTickerPr
                         'Connect with confirmed passengers',
                         Icons.people,
                         const Color(0xFF00BCD4),
-                        () => Navigator.pushNamed(context, '/find-buddy-intro'),
+                        () => Navigator.pushNamed(context, '/pnr'),
                       ),
                       _build3DCard(
                         context,
@@ -285,11 +285,7 @@ class _ModernHomeScreenState extends State<ModernHomeScreen> with SingleTickerPr
                         'Help waitlisted passengers',
                         Icons.airline_seat_recline_normal,
                         const Color(0xFF4CAF50),
-                        () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Offer seat feature coming soon!')),
-                          );
-                        },
+                        () => Navigator.pushNamed(context, '/pnr'),
                       ),
                       _build3DCard(
                         context,

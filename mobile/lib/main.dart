@@ -13,6 +13,7 @@ import 'screens/train_search_screen.dart';
 import 'screens/live_train_status_screen.dart';
 import 'screens/seat_availability_screen.dart';
 import 'screens/fare_enquiry_screen.dart';
+import 'screens/offer_seat_screen.dart';
 import 'services/token_store.dart';
 import 'widgets/offline_banner.dart';
 
@@ -52,6 +53,7 @@ class TrainBuddyApp extends StatelessWidget {
         '/live-status': (context) => const LiveTrainStatusScreen(),
         '/seat-availability': (context) => const SeatAvailabilityScreen(),
         '/fare-enquiry': (context) => const FareEnquiryScreen(),
+        '/offer-seat': (context) => const OfferSeatScreen(),
       },
     );
   }

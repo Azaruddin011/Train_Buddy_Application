@@ -92,7 +92,7 @@ class HomeScreen extends StatelessWidget {
                     'Seek Buddy',
                     'For waiting list passengers',
                     Colors.blue[600]!,
-                    () => Navigator.pushNamed(context, '/find-buddy-intro'),
+                    () => Navigator.pushNamed(context, '/pnr'),
                   ),
                   _buildMenuCard(
                     context,
@@ -100,11 +100,7 @@ class HomeScreen extends StatelessWidget {
                     'Offer Seat',
                     'For confirmed seat passengers',
                     Colors.green[600]!,
-                    () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Offer seat feature coming soon!')),
-                      );
-                    },
+                    () => Navigator.pushNamed(context, '/pnr'),
                   ),
                   _buildMenuCard(
                     context,

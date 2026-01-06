@@ -25,24 +25,8 @@ class ApiClient {
     bool useCache = false,
     Duration cacheTtl = const Duration(minutes: 5),
   }) async {
-    // Check connectivity first
-    if (!_connectivityService.isOnline) {
-      // If we have a cached response and caching is enabled, return it
-      if (useCache) {
-        final cacheKey = _getCacheKey('POST', path, body);
-        final cachedData = _responseCache[cacheKey];
-        if (cachedData != null && !cachedData.isExpired()) {
-          return cachedData.data;
-        }
-      }
-      
-      // Otherwise, throw offline error
-      throw ApiException(
-        'No internet connection', 
-        ApiErrorType.offline,
-        retryable: true,
-      );
-    }
+    // NOTE: Do not hard-block requests based on ConnectivityService.
+    // It is a best-effort indicator and can be wrong (especially on emulators).
     
     // Prepare headers
     final token = tokenProvider();
@@ -83,24 +67,8 @@ class ApiClient {
     bool useCache = true,
     Duration cacheTtl = const Duration(minutes: 5),
   }) async {
-    // Check connectivity first
-    if (!_connectivityService.isOnline) {
-      // If we have a cached response and caching is enabled, return it
-      if (useCache) {
-        final cacheKey = _getCacheKey('GET', path);
-        final cachedData = _responseCache[cacheKey];
-        if (cachedData != null && !cachedData.isExpired()) {
-          return cachedData.data;
-        }
-      }
-      
-      // Otherwise, throw offline error
-      throw ApiException(
-        'No internet connection', 
-        ApiErrorType.offline,
-        retryable: true,
-      );
-    }
+    // NOTE: Do not hard-block requests based on ConnectivityService.
+    // It is a best-effort indicator and can be wrong (especially on emulators).
     
     // Prepare headers
     final token = tokenProvider();
@@ -158,6 +126,18 @@ class ApiClient {
   
   /// Handle API response and convert to appropriate format or throw exception
   Map<String, dynamic> _handleResponse(http.Response response) {
+    Map<String, dynamic>? errorJson;
+    String? serverMessage;
+    try {
+      final decoded = jsonDecode(response.body);
+      if (decoded is Map<String, dynamic>) {
+        errorJson = decoded;
+        serverMessage = decoded['message']?.toString();
+      }
+    } catch (_) {
+      // Ignore parse errors for non-JSON error bodies
+    }
+
     if (response.statusCode >= 200 && response.statusCode < 300) {
       try {
         return jsonDecode(response.body);
@@ -170,28 +150,28 @@ class ApiClient {
       }
     } else if (response.statusCode == 401) {
       throw ApiException(
-        'Unauthorized access', 
+        serverMessage ?? 'Unauthorized access', 
         ApiErrorType.unauthorized,
         statusCode: response.statusCode,
         retryable: false,
       );
     } else if (response.statusCode == 404) {
       throw ApiException(
-        'Resource not found', 
+        serverMessage ?? 'Resource not found', 
         ApiErrorType.notFound,
         statusCode: response.statusCode,
         retryable: false,
       );
     } else if (response.statusCode >= 500) {
       throw ApiException(
-        'Server error', 
+        serverMessage ?? 'Server error', 
         ApiErrorType.serverError,
         statusCode: response.statusCode,
         retryable: true,
       );
     } else {
       throw ApiException(
-        'API Error: ${response.statusCode} ${response.body}', 
+        serverMessage ?? 'API Error: ${response.statusCode} ${response.body}', 
         ApiErrorType.unknown,
         statusCode: response.statusCode,
         retryable: false,
@@ -238,6 +218,9 @@ class ApiException implements Exception {
   final bool retryable;
 
   ApiException(this.message, this.type, {this.statusCode, this.retryable = false});
+
+  @override
+  String toString() => message;
 }
 
 enum ApiErrorType {

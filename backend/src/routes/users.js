@@ -1,5 +1,8 @@
 const express = require('express');
 const router = express.Router();
+const path = require('path');
+const fs = require('fs');
+const multer = require('multer');
 const userService = require('../services/userService');
 const authMiddleware = require('../middleware/auth');
 const ApiError = require('../utils/apiError');
@@ -77,16 +80,44 @@ router.post('/verification', authMiddleware, extractPhoneNumber, async (req, res
   }
 });
 
-// Upload profile photo (placeholder - would normally use multer for file uploads)
-router.post('/photo', authMiddleware, extractPhoneNumber, async (req, res, next) => {
-  try {
-    // In a real implementation, we'd handle file upload and get a URL
-    // For now, we'll just use a URL provided in the request
-    const photoUrl = req.body.photoUrl;
-    
-    if (!photoUrl) {
-      throw new ApiError('MISSING_PHOTO', 'Photo URL is required', 400);
+const uploadsDir = path.join(__dirname, '..', '..', 'uploads');
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    try {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+    } catch (_) {
+      // ignore
     }
+    cb(null, uploadsDir);
+  },
+  filename: (req, file, cb) => {
+    const safePhone = String(req.phoneNumber || 'user').replace(/[^0-9+]/g, '');
+    const ext = path.extname(file.originalname || '').toLowerCase() || '.jpg';
+    cb(null, `profile_${safePhone}_${Date.now()}${ext}`);
+  }
+});
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const allowed = new Set(['image/jpeg', 'image/png', 'image/webp']);
+    if (!allowed.has(file.mimetype)) {
+      return cb(new ApiError('INVALID_PHOTO_TYPE', 'Only JPG, PNG, or WEBP images are allowed', 400));
+    }
+    cb(null, true);
+  }
+});
+
+// Upload profile photo (multipart)
+router.post('/photo', authMiddleware, extractPhoneNumber, upload.single('photo'), async (req, res, next) => {
+  try {
+    if (!req.file) {
+      throw new ApiError('MISSING_PHOTO', 'Photo file is required', 400);
+    }
+
+    const photoUrl = `/uploads/${req.file.filename}`;
     
     const result = await userService.updateProfilePhoto(req.phoneNumber, photoUrl);
     res.json(result);

@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
 const pnrService = require('../services/pnrService');
+const mongoose = require('mongoose');
+const VerifiedJourney = require('../models/verifiedJourney');
 
 router.post('/lookup', auth, async (req, res) => {
   const { pnr } = req.body;
@@ -16,6 +18,29 @@ router.post('/lookup', auth, async (req, res) => {
 
   try {
     const result = await pnrService.lookupPnr(pnr);
+
+    try {
+      const phoneNumber = (req.user?.phoneNumber || req.user?.phone || '').toString().trim();
+      if (result?.success && phoneNumber && mongoose.connection.readyState === 1) {
+        await VerifiedJourney.updateOne(
+          { phoneNumber, pnr },
+          {
+            $set: {
+              phoneNumber,
+              pnr,
+              journey: result.journey || {},
+              statusType: result.status?.type || null,
+              verifiedAt: new Date(),
+            },
+          },
+          { upsert: true }
+        );
+      }
+    } catch (err) {
+      // Best-effort persistence. Don't block PNR lookup on DB write failures.
+      console.warn('Failed to persist verified journey:', err?.message || err);
+    }
+
     return res.json(result);
   } catch (error) {
     console.error('PNR lookup error:', error);

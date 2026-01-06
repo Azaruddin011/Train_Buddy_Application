@@ -93,7 +93,7 @@ router.post('/live-status', auth, async (req, res) => {
  * Search stations
  * GET /trains/stations?query=:query
  */
-router.get('/stations', auth, async (req, res) => {
+router.get('/stations', async (req, res) => {
   const { query } = req.query;
 
   if (!query || query.length < 2) {

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../services/api_client.dart';
 import '../config/app_config.dart';
 import '../services/token_store.dart';
+import '../services/station_repository.dart';
+import '../widgets/station_autocomplete_field.dart';
 
 class SeatAvailabilityScreen extends StatefulWidget {
   const SeatAvailabilityScreen({super.key});
@@ -38,11 +40,11 @@ class _SeatAvailabilityScreenState extends State<SeatAvailabilityScreen> {
 
   Future<void> _checkAvailability() async {
     final trainNumber = _trainNumberController.text.trim();
-    final from = _fromController.text.trim();
-    final to = _toController.text.trim();
+    final fromInput = _fromController.text.trim();
+    final toInput = _toController.text.trim();
     final date = _dateController.text.trim();
 
-    if (trainNumber.isEmpty || from.isEmpty || to.isEmpty || date.isEmpty) {
+    if (trainNumber.isEmpty || fromInput.isEmpty || toInput.isEmpty || date.isEmpty) {
       setState(() => _errorMessage = 'Please fill all fields');
       return;
     }
@@ -54,6 +56,20 @@ class _SeatAvailabilityScreenState extends State<SeatAvailabilityScreen> {
     });
 
     try {
+      await StationRepository.instance.ensureLoaded();
+      final from = StationRepository.instance.resolveCodeFromInput(fromInput);
+      final to = StationRepository.instance.resolveCodeFromInput(toInput);
+
+      if (from == null || to == null) {
+        if (mounted) {
+          setState(() {
+            _errorMessage = 'Please select valid stations (e.g., NDLS, MAS)';
+            _isLoading = false;
+          });
+        }
+        return;
+      }
+
       final response = await _apiClient.get(
         '/trains/seat-availability?trainNumber=$trainNumber&from=$from&to=$to&date=$date&class=$_selectedClass',
       );
@@ -119,11 +135,14 @@ class _SeatAvailabilityScreenState extends State<SeatAvailabilityScreen> {
                 Row(
                   children: [
                     Expanded(
-                      child: TextField(
+                      child: StationAutocompleteField(
                         controller: _fromController,
+                        labelText: 'From',
+                        hintText: 'Type station name or code',
+                        textStyle: const TextStyle(color: Colors.white),
                         decoration: InputDecoration(
                           labelText: 'From',
-                          hintText: 'Station code',
+                          hintText: 'Type station name or code',
                           labelStyle: const TextStyle(color: Colors.white70),
                           hintStyle: const TextStyle(color: Colors.white38),
                           filled: true,
@@ -133,16 +152,18 @@ class _SeatAvailabilityScreenState extends State<SeatAvailabilityScreen> {
                             borderSide: BorderSide.none,
                           ),
                         ),
-                        style: const TextStyle(color: Colors.white),
                       ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: TextField(
+                      child: StationAutocompleteField(
                         controller: _toController,
+                        labelText: 'To',
+                        hintText: 'Type station name or code',
+                        textStyle: const TextStyle(color: Colors.white),
                         decoration: InputDecoration(
                           labelText: 'To',
-                          hintText: 'Station code',
+                          hintText: 'Type station name or code',
                           labelStyle: const TextStyle(color: Colors.white70),
                           hintStyle: const TextStyle(color: Colors.white38),
                           filled: true,
@@ -152,7 +173,6 @@ class _SeatAvailabilityScreenState extends State<SeatAvailabilityScreen> {
                             borderSide: BorderSide.none,
                           ),
                         ),
-                        style: const TextStyle(color: Colors.white),
                       ),
                     ),
                   ],

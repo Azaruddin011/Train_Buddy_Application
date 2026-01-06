@@ -84,20 +84,40 @@ class UserService {
   }
   
   /// Upload profile photo
-  /// Note: In a real app, this would handle file upload
-  /// For now, we'll just send a URL
+  /// Uploads an image file as multipart/form-data
   Future<Map<String, dynamic>> updateProfilePhoto({
     required String phoneNumber,
-    required String photoUrl,
+    required File photoFile,
   }) async {
-    final response = await _apiClient.post(
-      '/users/photo',
-      {
-        'phoneNumber': phoneNumber,
-        'photoUrl': photoUrl,
-      },
-    );
-    
-    return response;
+    final uri = Uri.parse('${AppConfig.backendBaseUrl}/users/photo');
+    final request = http.MultipartRequest('POST', uri);
+
+    final token = TokenStore.token;
+    if (token != null) {
+      request.headers['Authorization'] = 'Bearer $token';
+    }
+
+    request.fields['phoneNumber'] = phoneNumber;
+    request.files.add(await http.MultipartFile.fromPath('photo', photoFile.path));
+
+    final streamed = await request.send();
+    final body = await streamed.stream.bytesToString();
+
+    if (streamed.statusCode >= 200 && streamed.statusCode < 300) {
+      return jsonDecode(body) as Map<String, dynamic>;
+    }
+
+    try {
+      final decoded = jsonDecode(body);
+      if (decoded is Map<String, dynamic> && decoded['message'] != null) {
+        throw ApiException(decoded['message'].toString(), ApiErrorType.serverError,
+            statusCode: streamed.statusCode);
+      }
+    } catch (_) {
+      // ignore
+    }
+
+    throw ApiException('Photo upload failed', ApiErrorType.serverError,
+        statusCode: streamed.statusCode);
   }
 }
