@@ -131,7 +131,12 @@ class UserService {
       // ignore
     }
 
-    throw ApiException('Photo upload failed', ApiErrorType.serverError,
-        statusCode: streamed.statusCode);
+    final trimmedBody = body.trim();
+    final snippet = trimmedBody.length > 200 ? trimmedBody.substring(0, 200) : trimmedBody;
+    throw ApiException(
+      'Photo upload failed (HTTP ${streamed.statusCode})${snippet.isNotEmpty ? ': $snippet' : ''}',
+      ApiErrorType.serverError,
+      statusCode: streamed.statusCode,
+    );
   }
 }
