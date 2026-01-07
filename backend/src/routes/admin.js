@@ -3,11 +3,20 @@ const router = express.Router();
 const User = require('../models/user');
 const ApiError = require('../utils/apiError');
 
+const isLocalIp = (ipRaw) => {
+  const ip = (ipRaw || '').toString();
+  return ip === '127.0.0.1' || ip === '::1' || ip.endsWith('127.0.0.1');
+};
+
+const allowRemoteAdmin = () => {
+  const v = (process.env.ADMIN_ALLOW_REMOTE || '').toString().trim().toLowerCase();
+  return v === '1' || v === 'true' || v === 'yes';
+};
+
 const adminAuth = (req, res, next) => {
   const ip = req.ip || req.connection?.remoteAddress || '';
-  const isLocal = ip === '127.0.0.1' || ip === '::1' || ip.endsWith('127.0.0.1');
-
-  if (!isLocal) {
+  const isLocal = isLocalIp(ip);
+  if (!isLocal && !allowRemoteAdmin()) {
     return next(new ApiError('FORBIDDEN', 'Admin endpoints are only available from localhost', 403));
   }
 
@@ -25,14 +34,23 @@ const adminAuth = (req, res, next) => {
   next();
 };
 
-const adminLocalOnly = (req, res, next) => {
+const adminPanelAccess = (req, res, next) => {
   const ip = req.ip || req.connection?.remoteAddress || '';
-  const isLocal = ip === '127.0.0.1' || ip === '::1' || ip.endsWith('127.0.0.1');
-
-  if (!isLocal) {
+  const isLocal = isLocalIp(ip);
+  if (isLocal) {
+    return next();
+  }
+  if (!allowRemoteAdmin()) {
     return next(new ApiError('FORBIDDEN', 'Admin panel is only available from localhost', 403));
   }
-
+  const expected = process.env.ADMIN_TOKEN;
+  const provided = (req.query.token || '').toString();
+  if (!expected) {
+    return next(new ApiError('ADMIN_TOKEN_MISSING', 'ADMIN_TOKEN is not configured on server', 500));
+  }
+  if (!provided || provided !== expected) {
+    return next(new ApiError('UNAUTHORIZED', 'Missing/invalid admin token', 401));
+  }
   next();
 };
 
@@ -117,7 +135,7 @@ router.get('/users/export', adminAuth, async (req, res, next) => {
   }
 });
 
-router.get('/panel', adminLocalOnly, (req, res) => {
+router.get('/panel', adminPanelAccess, (req, res) => {
   res.setHeader('content-type', 'text/html; charset=utf-8');
   res.send(`<!doctype html>
 <html lang="en">
@@ -252,6 +270,11 @@ router.get('/panel', adminLocalOnly, (req, res) => {
       }
       function setToken(v) {
         localStorage.setItem('trainbuddy_admin_token', v || '');
+      }
+
+      const qpToken = new URLSearchParams(location.search).get('token');
+      if (qpToken) {
+        setToken(qpToken);
       }
 
       tokenInput.value = getToken();
