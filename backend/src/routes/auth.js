@@ -52,6 +52,41 @@ function signAppToken(payload) {
   return jwt.sign(payload, secret, { expiresIn });
 }
 
+function mapTwilioVerifyError(error) {
+  const status = error?.status || error?.statusCode || error?.response?.status;
+  const code = error?.code || error?.moreInfo || error?.response?.data?.code;
+
+  if (status === 429 || code === 20429) {
+    return {
+      statusCode: 429,
+      errorCode: 'OTP_RATE_LIMITED',
+      message: 'Too many OTP attempts. Please wait a bit and try again.'
+    };
+  }
+
+  if (code === 60202) {
+    return {
+      statusCode: 429,
+      errorCode: 'OTP_MAX_ATTEMPTS',
+      message: 'Maximum OTP verification attempts reached. Please request a new OTP.'
+    };
+  }
+
+  if (code === 60203) {
+    return {
+      statusCode: 401,
+      errorCode: 'OTP_EXPIRED',
+      message: 'OTP expired. Please request a new OTP.'
+    };
+  }
+
+  return {
+    statusCode: status && Number.isFinite(status) ? status : 500,
+    errorCode: 'OTP_VERIFY_FAILED',
+    message: error?.message || 'Failed to verify OTP. Please try again.'
+  };
+}
+
 router.post('/send-otp', (req, res) => {
   (async () => {
     const { phone, mode } = req.body;
@@ -243,10 +278,12 @@ router.post('/verify-otp', (req, res) => {
         code,
         details
       });
-      return res.status(500).json({
+
+      const mapped = mapTwilioVerifyError(error);
+      return res.status(mapped.statusCode).json({
         success: false,
-        errorCode: 'OTP_VERIFY_FAILED',
-        message: 'Failed to verify OTP. Please try again.'
+        errorCode: mapped.errorCode,
+        message: mapped.message
       });
     }
   })();
