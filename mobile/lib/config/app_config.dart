@@ -4,7 +4,14 @@ class AppConfig {
   static String get backendBaseUrl {
     const override = String.fromEnvironment('BACKEND_BASE_URL');
     if (override.isNotEmpty) {
-      return override;
+      final trimmed = override.trim();
+      if (trimmed.startsWith('ttps://')) {
+        return 'h$trimmed';
+      }
+      if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+        return trimmed;
+      }
+      return 'https://$trimmed';
     }
 
     if (kIsWeb) {
