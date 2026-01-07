@@ -7,6 +7,13 @@ const userSchema = new mongoose.Schema({
     unique: true,
     trim: true,
   },
+  phoneVerified: {
+    type: Boolean,
+    default: false,
+  },
+  phoneVerifiedAt: {
+    type: Date,
+  },
   name: {
     type: String,
     trim: true,

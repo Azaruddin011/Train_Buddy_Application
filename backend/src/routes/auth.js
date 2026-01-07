@@ -178,7 +178,17 @@ router.post('/verify-otp', (req, res) => {
         try {
           userDoc = await User.findOneAndUpdate(
             { phoneNumber: to },
-            { $setOnInsert: { phoneNumber: to } },
+            {
+              $setOnInsert: {
+                phoneNumber: to,
+                phoneVerified: true,
+                phoneVerifiedAt: new Date()
+              },
+              $set: {
+                phoneVerified: true,
+                phoneVerifiedAt: new Date()
+              }
+            },
             { new: true, upsert: true }
           ).lean();
         } catch (e) {
@@ -197,7 +207,20 @@ router.post('/verify-otp', (req, res) => {
             message: 'Account not found. Please create an account first.'
           });
         }
-        userDoc = existing;
+        try {
+          userDoc = await User.findOneAndUpdate(
+            { _id: existing._id },
+            { $set: { phoneVerified: true, phoneVerifiedAt: new Date() } },
+            { new: true }
+          ).lean();
+        } catch (e) {
+          console.error('User update failed:', e?.message || e);
+          return res.status(503).json({
+            success: false,
+            errorCode: 'SERVICE_UNAVAILABLE',
+            message: 'Service temporarily unavailable. Try again later.'
+          });
+        }
       }
 
       const token = signAppToken({ phone: to, phoneNumber: to });
