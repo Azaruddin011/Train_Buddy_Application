@@ -229,9 +229,7 @@ router.post('/verify-otp', (req, res) => {
             { phoneNumber: to },
             {
               $setOnInsert: {
-                phoneNumber: to,
-                phoneVerified: true,
-                phoneVerifiedAt: new Date()
+                phoneNumber: to
               },
               $set: {
                 phoneVerified: true,
