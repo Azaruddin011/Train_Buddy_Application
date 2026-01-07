@@ -103,11 +103,23 @@ const upload = multer({
   storage,
   limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
-    const allowed = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif']);
-    if (!allowed.has(file.mimetype)) {
-      return cb(new ApiError('INVALID_PHOTO_TYPE', 'Only JPG, PNG, WEBP, or HEIC images are allowed', 400));
+    const mimetype = String(file.mimetype || '').toLowerCase();
+
+    // Some devices/providers send non-standard image mimetypes.
+    // Accept any image/* to reduce false negatives.
+    if (mimetype.startsWith('image/')) {
+      return cb(null, true);
     }
-    cb(null, true);
+
+    // Fallback: occasionally images are sent as octet-stream.
+    // We still reject unknown content-types unless the filename suggests a common image extension.
+    const name = String(file.originalname || '').toLowerCase();
+    const looksLikeImage = /\.(jpg|jpeg|png|webp|heic|heif)$/i.test(name);
+    if (mimetype === 'application/octet-stream' && looksLikeImage) {
+      return cb(null, true);
+    }
+
+    return cb(new ApiError('INVALID_PHOTO_TYPE', 'Only image files are allowed', 400));
   }
 });
 
