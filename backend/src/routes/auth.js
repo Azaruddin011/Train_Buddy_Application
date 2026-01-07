@@ -172,6 +172,12 @@ router.post('/verify-otp', (req, res) => {
     const to = normalizeIndianPhone(phone);
     const authMode = normalizeAuthMode(mode);
 
+    console.log('DEBUG TWILIO ENV:', {
+      ACCOUNT_SID: process.env.TWILIO_ACCOUNT_SID?.substring(0, 10) + '...',
+      AUTH_TOKEN: process.env.TWILIO_AUTH_TOKEN?.substring(0, 5) + '...',
+      VERIFY_SID: process.env.TWILIO_VERIFY_SERVICE_SID
+    });
+
     if (!to || !otp) {
       return res.status(400).json({
         success: false,
