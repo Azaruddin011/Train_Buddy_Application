@@ -153,7 +153,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     try {
       final picker = ImagePicker();
-      final picked = await picker.pickImage(source: ImageSource.gallery);
+      final picked = await picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 85,
+      );
       if (picked == null) return;
 
       setState(() {
@@ -175,7 +178,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
     } catch (e) {
       setState(() {
-        _errorMessage = e.toString();
+        _errorMessage = 'Failed to upload photo: ${e.toString()}';
       });
     } finally {
       if (mounted) {

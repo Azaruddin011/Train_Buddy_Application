@@ -103,9 +103,9 @@ const upload = multer({
   storage,
   limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
-    const allowed = new Set(['image/jpeg', 'image/png', 'image/webp']);
+    const allowed = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif']);
     if (!allowed.has(file.mimetype)) {
-      return cb(new ApiError('INVALID_PHOTO_TYPE', 'Only JPG, PNG, or WEBP images are allowed', 400));
+      return cb(new ApiError('INVALID_PHOTO_TYPE', 'Only JPG, PNG, WEBP, or HEIC images are allowed', 400));
     }
     cb(null, true);
   }
