@@ -56,6 +56,14 @@ function mapTwilioVerifyError(error) {
   const status = error?.status || error?.statusCode || error?.response?.status;
   const code = error?.code || error?.moreInfo || error?.response?.data?.code;
 
+  if (status === 404 || code === 20404) {
+    return {
+      statusCode: 500,
+      errorCode: 'TWILIO_VERIFY_NOT_FOUND',
+      message: 'Twilio Verify service was not found. Check TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, and TWILIO_VERIFY_SERVICE_SID in your server environment.'
+    };
+  }
+
   if (status === 429 || code === 20429) {
     return {
       statusCode: 429,
