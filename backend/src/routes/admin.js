@@ -114,7 +114,7 @@ router.get('/users/export', adminAuth, async (req, res, next) => {
         return s;
       };
 
-      const header = ['_id', 'phoneNumber', 'name', 'email', 'profilePhotoUrl', 'createdAt', 'updatedAt'];
+      const header = ['_id', 'phoneNumber', 'name', 'email', 'aadhaarNumber', 'ageGroup', 'emergencyContact', 'profilePhotoUrl', 'profileCompleteness', 'createdAt', 'updatedAt'];
       const lines = [header.join(',')];
       for (const u of users) {
         const row = header.map((k) => escapeCsv(u[k]));
@@ -224,6 +224,10 @@ router.get('/panel', adminPanelAccess, (req, res) => {
                 <th>Phone</th>
                 <th>Name</th>
                 <th>Email</th>
+                <th>Aadhaar</th>
+                <th>Age Group</th>
+                <th>Emergency</th>
+                <th>Profile %</th>
                 <th>Created</th>
                 <th></th>
               </tr>
@@ -405,6 +409,10 @@ router.get('/panel', adminPanelAccess, (req, res) => {
               '<td>' + (u.phoneNumber || '') + '</td>' +
               '<td>' + (u.name || '') + '</td>' +
               '<td class="muted">' + (u.email || '') + '</td>' +
+              '<td class="muted">' + (u.aadhaarNumber || '') + '</td>' +
+              '<td class="muted">' + (u.ageGroup || '') + '</td>' +
+              '<td class="muted">' + (u.emergencyContact || '') + '</td>' +
+              '<td class="muted">' + ((u.profileCompleteness !== undefined && u.profileCompleteness !== null) ? u.profileCompleteness : '') + '</td>' +
               '<td class="muted">' + fmtDate(u.createdAt) + '</td>' +
               '<td><button class="secondary" data-id="' + id + '">View</button></td>';
             tr.querySelector('button').addEventListener('click', async () => {
