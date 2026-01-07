@@ -81,7 +81,9 @@ router.post('/verification', authMiddleware, extractPhoneNumber, async (req, res
   }
 });
 
-const uploadsDir = path.join(__dirname, '..', '..', 'uploads');
+const uploadsDir = process.env.UPLOADS_DIR
+  ? path.resolve(process.env.UPLOADS_DIR)
+  : path.join(__dirname, '..', '..', 'uploads');
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
