@@ -11,15 +11,22 @@ class AuthService {
 
   String? get token => _token;
 
-  Future<void> sendOtp(String phone) async {
-    final json = await _apiClient.post('/auth/send-otp', {'phone': phone});
+  Future<void> sendOtp(String phone, {required bool isLogin}) async {
+    final json = await _apiClient.post('/auth/send-otp', {
+      'phone': phone,
+      'mode': isLogin ? 'login' : 'signup',
+    });
     if (!json['success']) {
       throw Exception(json['message'] ?? 'Failed to send OTP');
     }
   }
 
-  Future<void> verifyOtp(String phone, String otp) async {
-    final json = await _apiClient.post('/auth/verify-otp', {'phone': phone, 'otp': otp});
+  Future<void> verifyOtp(String phone, String otp, {required bool isLogin}) async {
+    final json = await _apiClient.post('/auth/verify-otp', {
+      'phone': phone,
+      'otp': otp,
+      'mode': isLogin ? 'login' : 'signup',
+    });
     if (!json['success']) {
       throw Exception(json['message'] ?? 'Failed to verify OTP');
     }

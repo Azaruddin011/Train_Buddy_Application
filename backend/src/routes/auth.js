@@ -5,6 +5,12 @@ const jwt = require('jsonwebtoken');
 const twilio = require('twilio');
 const User = require('../models/user');
 
+function normalizeAuthMode(input) {
+  const v = String(input || '').trim().toLowerCase();
+  if (v === 'signup' || v === 'sign_up' || v === 'register') return 'signup';
+  return 'login';
+}
+
 function normalizeIndianPhone(input) {
   const raw = String(input || '').trim();
   if (!raw) return null;
@@ -48,13 +54,41 @@ function signAppToken(payload) {
 
 router.post('/send-otp', (req, res) => {
   (async () => {
-    const { phone } = req.body;
+    const { phone, mode } = req.body;
     const to = normalizeIndianPhone(phone);
+    const authMode = normalizeAuthMode(mode);
     if (!to) {
       return res.status(400).json({
         success: false,
         errorCode: 'INVALID_PHONE',
         message: 'Enter a valid 10-digit phone number.'
+      });
+    }
+
+    let existing;
+    try {
+      existing = await User.findOne({ phoneNumber: to }).select({ _id: 1 }).lean();
+    } catch (e) {
+      console.error('User lookup failed:', e?.message || e);
+      return res.status(503).json({
+        success: false,
+        errorCode: 'SERVICE_UNAVAILABLE',
+        message: 'Service temporarily unavailable. Try again later.'
+      });
+    }
+
+    if (authMode === 'signup' && existing) {
+      return res.status(409).json({
+        success: false,
+        errorCode: 'USER_EXISTS',
+        message: 'This number is already registered. Please login.'
+      });
+    }
+    if (authMode === 'login' && !existing) {
+      return res.status(404).json({
+        success: false,
+        errorCode: 'USER_NOT_FOUND',
+        message: 'Account not found. Please create an account first.'
       });
     }
 
@@ -91,8 +125,9 @@ router.post('/send-otp', (req, res) => {
 
 router.post('/verify-otp', (req, res) => {
   (async () => {
-    const { phone, otp } = req.body;
+    const { phone, otp, mode } = req.body;
     const to = normalizeIndianPhone(phone);
+    const authMode = normalizeAuthMode(mode);
 
     if (!to || !otp) {
       return res.status(400).json({
@@ -119,14 +154,50 @@ router.post('/verify-otp', (req, res) => {
       }
 
       let userDoc = null;
+      let existing;
       try {
-        userDoc = await User.findOneAndUpdate(
-          { phoneNumber: to },
-          { $setOnInsert: { phoneNumber: to } },
-          { new: true, upsert: true }
-        ).lean();
+        existing = await User.findOne({ phoneNumber: to }).select({ _id: 1, phoneNumber: 1 }).lean();
       } catch (e) {
-        console.warn('User upsert failed (continuing without persisting user):', e?.message || e);
+        console.error('User lookup failed:', e?.message || e);
+        return res.status(503).json({
+          success: false,
+          errorCode: 'SERVICE_UNAVAILABLE',
+          message: 'Service temporarily unavailable. Try again later.'
+        });
+      }
+
+      if (authMode === 'signup') {
+        if (existing) {
+          return res.status(409).json({
+            success: false,
+            errorCode: 'USER_EXISTS',
+            message: 'This number is already registered. Please login.'
+          });
+        }
+
+        try {
+          userDoc = await User.findOneAndUpdate(
+            { phoneNumber: to },
+            { $setOnInsert: { phoneNumber: to } },
+            { new: true, upsert: true }
+          ).lean();
+        } catch (e) {
+          console.error('User upsert failed:', e?.message || e);
+          return res.status(503).json({
+            success: false,
+            errorCode: 'SERVICE_UNAVAILABLE',
+            message: 'Service temporarily unavailable. Try again later.'
+          });
+        }
+      } else {
+        if (!existing) {
+          return res.status(404).json({
+            success: false,
+            errorCode: 'USER_NOT_FOUND',
+            message: 'Account not found. Please create an account first.'
+          });
+        }
+        userDoc = existing;
       }
 
       const token = signAppToken({ phone: to, phoneNumber: to });

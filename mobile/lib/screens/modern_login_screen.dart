@@ -81,7 +81,7 @@ class _ModernLoginScreenState extends State<ModernLoginScreen> with SingleTicker
     });
 
     try {
-      await _authService.sendOtp(phone);
+      await _authService.sendOtp(phone, isLogin: _isLogin);
       setState(() {
         _step = LoginStep.enterOtp;
         _isLoading = false;
@@ -109,7 +109,7 @@ class _ModernLoginScreenState extends State<ModernLoginScreen> with SingleTicker
     });
 
     try {
-      final result = await _authService.verifyOtp(phone, otp);
+      await _authService.verifyOtp(phone, otp, isLogin: _isLogin);
       if (mounted) {
         // Check if this is a new user (isNewUser would be returned from the backend)
         // For now, we'll use _isLogin as a proxy - if they chose signup, we'll show profile creation

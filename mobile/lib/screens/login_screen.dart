@@ -20,6 +20,7 @@ class _LoginScreenState extends State<LoginScreen> {
   late final AuthService _authService;
 
   LoginStep _step = LoginStep.enterPhone;
+  bool _isLogin = true;
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -61,7 +62,7 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-      await _authService.sendOtp(phone);
+      await _authService.sendOtp(phone, isLogin: _isLogin);
       setState(() {
         _step = LoginStep.enterOtp;
         _isLoading = false;
@@ -89,7 +90,7 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-      await _authService.verifyOtp(phone, otp);
+      await _authService.verifyOtp(phone, otp, isLogin: _isLogin);
       if (mounted) {
         Navigator.pushReplacementNamed(context, '/home');
       }
@@ -388,6 +389,7 @@ class _LoginScreenState extends State<LoginScreen> {
   void _showPhoneInput(BuildContext context, {required bool isLogin}) {
     setState(() {
       _step = LoginStep.enterPhone;
+      _isLogin = isLogin;
       _errorMessage = null;
       _phoneController.clear();
       _otpController.clear();
