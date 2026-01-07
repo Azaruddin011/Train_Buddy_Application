@@ -3,6 +3,7 @@ const router = express.Router();
 
 const jwt = require('jsonwebtoken');
 const twilio = require('twilio');
+const User = require('../models/user');
 
 function normalizeIndianPhone(input) {
   const raw = String(input || '').trim();
@@ -117,13 +118,25 @@ router.post('/verify-otp', (req, res) => {
         });
       }
 
+      let userDoc = null;
+      try {
+        userDoc = await User.findOneAndUpdate(
+          { phoneNumber: to },
+          { $setOnInsert: { phoneNumber: to } },
+          { new: true, upsert: true }
+        ).lean();
+      } catch (e) {
+        console.warn('User upsert failed (continuing without persisting user):', e?.message || e);
+      }
+
       const token = signAppToken({ phone: to, phoneNumber: to });
 
       return res.json({
         success: true,
         token,
         user: {
-          phone: to
+          phone: to,
+          id: userDoc?._id
         }
       });
     } catch (error) {
