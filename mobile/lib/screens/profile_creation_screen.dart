@@ -146,6 +146,12 @@ class _ProfileCreationScreenState extends State<ProfileCreationScreen> with Sing
   }
 
   void _nextStep() {
+    if (_currentStep == 1 && _profileImage == null) {
+      setState(() {
+        _errorMessage = 'Please add a profile photo to continue.';
+      });
+      return;
+    }
     if (_currentStep < _totalSteps - 1) {
       setState(() {
         _currentStep++;
@@ -565,20 +571,6 @@ class _ProfileCreationScreenState extends State<ProfileCreationScreen> with Sing
                 text: 'Only include yourself in the photo',
               ),
             ],
-          ),
-        ),
-        const SizedBox(height: 16),
-        
-        // Skip photo option
-        Center(
-          child: TextButton(
-            onPressed: () {
-              _nextStep();
-            },
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.white.withOpacity(0.7),
-            ),
-            child: const Text('Skip for now'),
           ),
         ),
       ],
