@@ -156,6 +156,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final picked = await picker.pickImage(
         source: ImageSource.gallery,
         imageQuality: 85,
+        maxWidth: 1280,
+        maxHeight: 1280,
       );
       if (picked == null) return;
 

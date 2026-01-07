@@ -105,8 +105,16 @@ class UserService {
     }
     request.files.add(await http.MultipartFile.fromPath('photo', photoFile.path));
 
-    final streamed = await request.send();
-    final body = await streamed.stream.bytesToString();
+    http.StreamedResponse streamed;
+    String body;
+    try {
+      streamed = await request.send().timeout(const Duration(seconds: 45));
+      body = await streamed.stream.bytesToString().timeout(const Duration(seconds: 45));
+    } on SocketException catch (e) {
+      throw ApiException('Network error while uploading photo: ${e.message}', ApiErrorType.serverError);
+    } on TimeoutException {
+      throw ApiException('Upload timed out. Please try a smaller photo or try again.', ApiErrorType.serverError);
+    }
 
     if (streamed.statusCode >= 200 && streamed.statusCode < 300) {
       return jsonDecode(body) as Map<String, dynamic>;

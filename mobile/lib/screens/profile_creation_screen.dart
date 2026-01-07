@@ -55,7 +55,12 @@ class _ProfileCreationScreenState extends State<ProfileCreationScreen> with Sing
   Future<void> _pickImage() async {
     try {
       final ImagePicker picker = ImagePicker();
-      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+      final XFile? image = await picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 85,
+        maxWidth: 1280,
+        maxHeight: 1280,
+      );
       
       if (image != null) {
         setState(() {
