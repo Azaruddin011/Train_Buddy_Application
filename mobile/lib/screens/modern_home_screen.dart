@@ -8,6 +8,7 @@ import '../services/auth_service.dart';
 import '../services/api_client.dart';
 import '../config/app_config.dart';
 import '../services/token_store.dart';
+import '../widgets/profile_icon_button.dart';
 
 class ModernHomeScreen extends StatefulWidget {
   const ModernHomeScreen({super.key});
@@ -182,6 +183,7 @@ class _ModernHomeScreenState extends State<ModernHomeScreen> with SingleTickerPr
         ),
         centerTitle: true,
         actions: [
+          const ProfileIconButton(iconColor: Colors.white),
           IconButton(
             icon: const Icon(Icons.notifications, color: Colors.white),
             onPressed: () {

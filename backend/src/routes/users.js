@@ -11,7 +11,7 @@ const ApiError = require('../utils/apiError');
 const extractPhoneNumber = (req, res, next) => {
   // In a real app, this would come from the decoded JWT
   // For now, we'll use a placeholder or query param
-  req.phoneNumber = req.query.phoneNumber || req.body.phoneNumber;
+  req.phoneNumber = req.user?.phoneNumber || req.user?.phone || req.query.phoneNumber || req.body.phoneNumber;
   
   if (!req.phoneNumber) {
     return next(new ApiError('MISSING_PHONE', 'Phone number is required', 400));
@@ -37,7 +37,8 @@ router.post('/profile', authMiddleware, extractPhoneNumber, async (req, res, nex
       name: req.body.name,
       email: req.body.email,
       ageGroup: req.body.ageGroup,
-      emergencyContact: req.body.emergencyContact
+      emergencyContact: req.body.emergencyContact,
+      aadhaarNumber: req.body.aadhaarNumber
     };
     
     const result = await userService.createOrUpdateUser(req.phoneNumber, userData);

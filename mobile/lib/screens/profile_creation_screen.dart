@@ -27,6 +27,7 @@ class _ProfileCreationScreenState extends State<ProfileCreationScreen> with Sing
   
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
+  final _aadhaarController = TextEditingController();
   
   String _selectedAgeGroup = '18-25';
   final List<String> _ageGroups = ['Under 18', '18-25', '26-35', '36-50', 'Above 50'];
@@ -45,6 +46,7 @@ class _ProfileCreationScreenState extends State<ProfileCreationScreen> with Sing
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
+    _aadhaarController.dispose();
     _emergencyContactController.dispose();
     _animationController.dispose();
     super.dispose();
@@ -111,6 +113,7 @@ class _ProfileCreationScreenState extends State<ProfileCreationScreen> with Sing
         email: _emailController.text.isNotEmpty ? _emailController.text : null,
         ageGroup: _selectedAgeGroup,
         emergencyContact: _emergencyContactController.text,
+        aadhaarNumber: _aadhaarController.text.isNotEmpty ? _aadhaarController.text : null,
       );
       
       // Update profile photo if selected
@@ -404,6 +407,24 @@ class _ProfileCreationScreenState extends State<ProfileCreationScreen> with Sing
               // Simple email validation
               if (!value.contains('@') || !value.contains('.')) {
                 return 'Please enter a valid email address';
+              }
+            }
+            return null;
+          },
+        ),
+        const SizedBox(height: 24),
+
+        _buildInputField(
+          controller: _aadhaarController,
+          labelText: 'Aadhaar Number (Optional)',
+          hintText: 'Enter 12-digit Aadhaar number',
+          icon: Icons.badge_outlined,
+          keyboardType: TextInputType.number,
+          validator: (value) {
+            if (value != null && value.isNotEmpty) {
+              final digitsOnly = value.replaceAll(RegExp(r'\D'), '');
+              if (digitsOnly.length != 12) {
+                return 'Please enter a valid 12-digit Aadhaar number';
               }
             }
             return null;

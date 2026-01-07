@@ -14,6 +14,10 @@ const userSchema = new mongoose.Schema({
   phoneVerifiedAt: {
     type: Date,
   },
+  aadhaarNumber: {
+    type: String,
+    trim: true,
+  },
   name: {
     type: String,
     trim: true,

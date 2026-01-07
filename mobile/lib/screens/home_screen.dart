@@ -3,6 +3,7 @@ import '../services/auth_service.dart';
 import '../services/api_client.dart';
 import '../config/app_config.dart';
 import '../services/token_store.dart';
+import '../widgets/profile_icon_button.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -23,6 +24,7 @@ class HomeScreen extends StatelessWidget {
         ),
         centerTitle: true,
         actions: [
+          const ProfileIconButton(),
           IconButton(
             icon: const Icon(Icons.logout, color: Colors.black54),
             onPressed: () async {

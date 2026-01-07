@@ -14,6 +14,7 @@ import 'screens/live_train_status_screen.dart';
 import 'screens/seat_availability_screen.dart';
 import 'screens/fare_enquiry_screen.dart';
 import 'screens/offer_seat_screen.dart';
+import 'screens/profile_screen.dart';
 import 'services/token_store.dart';
 import 'widgets/offline_banner.dart';
 
@@ -44,6 +45,7 @@ class TrainBuddyApp extends StatelessWidget {
         '/login-classic': (context) => const LoginScreen(),
         '/home': (context) => const ModernHomeScreen(),
         '/home-classic': (context) => const HomeScreen(),
+        '/profile': (context) => const ProfileScreen(),
         '/pnr': (context) => const PnrInputScreen(),
         '/journey-clarity': (context) => const JourneyClarityScreen(),
         '/find-buddy-intro': (context) => const FindBuddyIntroScreen(),

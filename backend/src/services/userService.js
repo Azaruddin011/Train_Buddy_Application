@@ -30,6 +30,7 @@ class UserService {
       if (userData.email) user.email = userData.email;
       if (userData.ageGroup) user.ageGroup = userData.ageGroup;
       if (userData.emergencyContact) user.emergencyContact = userData.emergencyContact;
+      if (userData.aadhaarNumber) user.aadhaarNumber = userData.aadhaarNumber;
       
       // Calculate profile completeness
       user.calculateProfileCompleteness();
@@ -234,6 +235,7 @@ class UserService {
     const mockUser = {
       _id: 'mock_' + Date.now(),
       phoneNumber,
+      aadhaarNumber: userData.aadhaarNumber || '',
       name: userData.name || '',
       email: userData.email || '',
       ageGroup: userData.ageGroup || '',

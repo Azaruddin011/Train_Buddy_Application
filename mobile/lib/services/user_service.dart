@@ -12,20 +12,22 @@ class UserService {
   
   /// Create or update user profile
   Future<Map<String, dynamic>> updateProfile({
-    required String phoneNumber,
+    String? phoneNumber,
     String? name,
     String? email,
     String? ageGroup,
     String? emergencyContact,
+    String? aadhaarNumber,
   }) async {
     final response = await _apiClient.post(
       '/users/profile',
       {
-        'phoneNumber': phoneNumber,
+        if (phoneNumber != null) 'phoneNumber': phoneNumber,
         if (name != null) 'name': name,
         if (email != null) 'email': email,
         if (ageGroup != null) 'ageGroup': ageGroup,
         if (emergencyContact != null) 'emergencyContact': emergencyContact,
+        if (aadhaarNumber != null) 'aadhaarNumber': aadhaarNumber,
       },
     );
     
@@ -33,10 +35,11 @@ class UserService {
   }
   
   /// Get user profile
-  Future<Map<String, dynamic>> getProfile({required String phoneNumber}) async {
-    final response = await _apiClient.get(
-      '/users/profile?phoneNumber=$phoneNumber',
-    );
+  Future<Map<String, dynamic>> getProfile({String? phoneNumber}) async {
+    final path = phoneNumber != null
+        ? '/users/profile?phoneNumber=$phoneNumber'
+        : '/users/profile';
+    final response = await _apiClient.get(path);
     
     return response;
   }
@@ -86,7 +89,7 @@ class UserService {
   /// Upload profile photo
   /// Uploads an image file as multipart/form-data
   Future<Map<String, dynamic>> updateProfilePhoto({
-    required String phoneNumber,
+    String? phoneNumber,
     required File photoFile,
   }) async {
     final uri = Uri.parse('${AppConfig.backendBaseUrl}/users/photo');
@@ -97,7 +100,9 @@ class UserService {
       request.headers['Authorization'] = 'Bearer $token';
     }
 
-    request.fields['phoneNumber'] = phoneNumber;
+    if (phoneNumber != null) {
+      request.fields['phoneNumber'] = phoneNumber;
+    }
     request.files.add(await http.MultipartFile.fromPath('photo', photoFile.path));
 
     final streamed = await request.send();
