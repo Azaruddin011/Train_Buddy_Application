@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const path = require('path');
-const fs = require('fs');
 const multer = require('multer');
+const { v2: cloudinary } = require('cloudinary');
 const userService = require('../services/userService');
 const authMiddleware = require('../middleware/auth');
 const ApiError = require('../utils/apiError');
@@ -81,25 +81,9 @@ router.post('/verification', authMiddleware, extractPhoneNumber, async (req, res
   }
 });
 
-const uploadsDir = process.env.UPLOADS_DIR
-  ? path.resolve(process.env.UPLOADS_DIR)
-  : path.join(__dirname, '..', '..', 'uploads');
+cloudinary.config({ secure: true });
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    try {
-      fs.mkdirSync(uploadsDir, { recursive: true });
-    } catch (_) {
-      // ignore
-    }
-    cb(null, uploadsDir);
-  },
-  filename: (req, file, cb) => {
-    const safePhone = String(req.phoneNumber || 'user').replace(/[^0-9+]/g, '');
-    const ext = path.extname(file.originalname || '').toLowerCase() || '.jpg';
-    cb(null, `profile_${safePhone}_${Date.now()}${ext}`);
-  }
-});
+const storage = multer.memoryStorage();
 
 const upload = multer({
   storage,
@@ -132,8 +116,34 @@ router.post('/photo', authMiddleware, extractPhoneNumber, upload.single('photo')
       throw new ApiError('MISSING_PHOTO', 'Photo file is required', 400);
     }
 
-    const photoUrl = `/uploads/${req.file.filename}`;
-    
+    if (!process.env.CLOUDINARY_URL) {
+      throw new ApiError('CLOUDINARY_NOT_CONFIGURED', 'Cloudinary is not configured', 500);
+    }
+
+    const safePhone = String(req.phoneNumber || 'user').replace(/[^0-9+]/g, '');
+    const ext = path.extname(req.file.originalname || '').toLowerCase() || '.jpg';
+    const publicId = `profile_${safePhone}_${Date.now()}${ext}`;
+
+    const uploadResult = await new Promise((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream(
+        {
+          folder: 'trainbuddy/profile_photos',
+          public_id: publicId,
+          resource_type: 'image'
+        },
+        (err, result) => {
+          if (err) return reject(err);
+          resolve(result);
+        }
+      );
+      stream.end(req.file.buffer);
+    });
+
+    const photoUrl = uploadResult?.secure_url || uploadResult?.url;
+    if (!photoUrl) {
+      throw new ApiError('PHOTO_UPLOAD_FAILED', 'Failed to upload photo', 500);
+    }
+
     const result = await userService.updateProfilePhoto(req.phoneNumber, photoUrl);
     res.json(result);
   } catch (error) {
