@@ -47,7 +47,7 @@ class UserService {
   
   /// Update user preferences
   Future<Map<String, dynamic>> updatePreferences({
-    required String phoneNumber,
+    String? phoneNumber,
     String? seatPreference,
     List<String>? trainClasses,
     String? dietaryPreference,
@@ -56,7 +56,7 @@ class UserService {
     final response = await _apiClient.post(
       '/users/preferences',
       {
-        'phoneNumber': phoneNumber,
+        if (phoneNumber != null) 'phoneNumber': phoneNumber,
         if (seatPreference != null) 'seatPreference': seatPreference,
         if (trainClasses != null) 'trainClasses': trainClasses,
         if (dietaryPreference != null) 'dietaryPreference': dietaryPreference,

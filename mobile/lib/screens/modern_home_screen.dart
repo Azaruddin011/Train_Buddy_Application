@@ -9,6 +9,7 @@ import '../services/api_client.dart';
 import '../config/app_config.dart';
 import '../services/token_store.dart';
 import '../widgets/profile_icon_button.dart';
+import '../services/user_service.dart';
 
 class ModernHomeScreen extends StatefulWidget {
   const ModernHomeScreen({super.key});
@@ -21,6 +22,9 @@ class _ModernHomeScreenState extends State<ModernHomeScreen> with SingleTickerPr
   late AnimationController _animationController;
   final ScrollController _scrollController = ScrollController();
   double _scrollOffset = 0;
+
+  late final UserService _userService;
+  late Future<Map<String, dynamic>> _profileFuture;
   
   // Performance optimization flags
   bool _useSimpleAnimations = false;
@@ -33,6 +37,13 @@ class _ModernHomeScreenState extends State<ModernHomeScreen> with SingleTickerPr
   @override
   void initState() {
     super.initState();
+
+    final apiClient = ApiClient(
+      baseUrl: AppConfig.backendBaseUrl,
+      tokenProvider: () => TokenStore.token,
+    );
+    _userService = UserService(apiClient: apiClient);
+    _profileFuture = _userService.getProfile();
     
     // Initialize animation controller with default settings
     // We'll update these in didChangeDependencies after we have context
@@ -162,9 +173,18 @@ class _ModernHomeScreenState extends State<ModernHomeScreen> with SingleTickerPr
     return Scaffold(
       backgroundColor: const Color(0xFF1A237E),
       extendBodyBehindAppBar: true,
+      drawer: _buildDrawer(),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
+        leading: Builder(
+          builder: (context) {
+            return IconButton(
+              icon: const Icon(Icons.menu, color: Colors.white),
+              onPressed: () => Scaffold.of(context).openDrawer(),
+            );
+          },
+        ),
         title: AnimatedBuilder(
           animation: _animationController,
           builder: (context, child) {
@@ -190,19 +210,6 @@ class _ModernHomeScreenState extends State<ModernHomeScreen> with SingleTickerPr
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Notifications coming soon!')),
               );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.logout, color: Colors.white),
-            onPressed: () async {
-              final authService = AuthService(apiClient: ApiClient(
-                baseUrl: AppConfig.backendBaseUrl,
-                tokenProvider: () => TokenStore.token,
-              ));
-              await authService.logout();
-              if (context.mounted) {
-                Navigator.pushReplacementNamed(context, '/login');
-              }
             },
           ),
         ],
@@ -430,6 +437,99 @@ class _ModernHomeScreenState extends State<ModernHomeScreen> with SingleTickerPr
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  String? _absolutePhotoUrl(Map<String, dynamic>? user) {
+    final url = user?['profilePhotoUrl']?.toString();
+    if (url == null || url.isEmpty) return null;
+
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+
+    if (url.startsWith('/')) {
+      return '${AppConfig.backendBaseUrl}$url';
+    }
+
+    return '${AppConfig.backendBaseUrl}/$url';
+  }
+
+  Widget _buildDrawer() {
+    return Drawer(
+      child: SafeArea(
+        child: Column(
+          children: [
+            FutureBuilder<Map<String, dynamic>>(
+              future: _profileFuture,
+              builder: (context, snapshot) {
+                final user = snapshot.data?['user'] is Map<String, dynamic>
+                    ? (snapshot.data!['user'] as Map<String, dynamic>)
+                    : null;
+                final photoUrl = _absolutePhotoUrl(user);
+                final name = user?['name']?.toString();
+                final phone = user?['phoneNumber']?.toString() ?? user?['phone']?.toString();
+
+                return UserAccountsDrawerHeader(
+                  currentAccountPicture: CircleAvatar(
+                    backgroundColor: Colors.white,
+                    backgroundImage: photoUrl != null ? NetworkImage(photoUrl) : null,
+                    child: photoUrl == null
+                        ? const Icon(Icons.person, color: Colors.black54)
+                        : null,
+                  ),
+                  accountName: Text((name != null && name.isNotEmpty) ? name : 'Profile'),
+                  accountEmail: Text((phone != null && phone.isNotEmpty) ? phone : ''),
+                  decoration: const BoxDecoration(color: Color(0xFF1A237E)),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.person_outline),
+              title: const Text('Profile'),
+              onTap: () async {
+                Navigator.pop(context);
+                await Navigator.pushNamed(context, '/profile');
+                if (!mounted) return;
+                setState(() {
+                  _profileFuture = _userService.getProfile();
+                });
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.settings_outlined),
+              title: const Text('Settings'),
+              onTap: () async {
+                Navigator.pop(context);
+                await Navigator.pushNamed(context, '/settings');
+                if (!mounted) return;
+                setState(() {
+                  _profileFuture = _userService.getProfile();
+                });
+              },
+            ),
+            const Spacer(),
+            const Divider(height: 1),
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text('Logout'),
+              onTap: () async {
+                Navigator.pop(context);
+                final authService = AuthService(
+                  apiClient: ApiClient(
+                    baseUrl: AppConfig.backendBaseUrl,
+                    tokenProvider: () => TokenStore.token,
+                  ),
+                );
+                await authService.logout();
+                if (mounted) {
+                  Navigator.pushReplacementNamed(context, '/login');
+                }
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
