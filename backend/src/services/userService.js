@@ -82,10 +82,10 @@ class UserService {
    */
   async updatePreferences(phoneNumber, preferences) {
     try {
-      const user = await User.findOne({ phoneNumber });
+      let user = await User.findOne({ phoneNumber });
       
       if (!user) {
-        throw new ApiError('USER_NOT_FOUND', 'User not found', 404);
+        user = new User({ phoneNumber });
       }
       
       // Update preferences

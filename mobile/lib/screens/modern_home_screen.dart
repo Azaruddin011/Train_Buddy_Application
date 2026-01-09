@@ -509,6 +509,14 @@ class _ModernHomeScreenState extends State<ModernHomeScreen> with SingleTickerPr
                 });
               },
             ),
+            ListTile(
+              leading: const Icon(Icons.help_outline),
+              title: const Text('Help'),
+              onTap: () async {
+                Navigator.pop(context);
+                await Navigator.pushNamed(context, '/help');
+              },
+            ),
             const Spacer(),
             const Divider(height: 1),
             ListTile(
