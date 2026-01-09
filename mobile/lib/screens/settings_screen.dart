@@ -220,6 +220,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 },
               ),
 
+              const SizedBox(height: 20),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.brush_outlined),
+                title: const Text('Preview new UI design'),
+                subtitle: const Text('See the new Home design sample'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () {
+                  Navigator.pushNamed(context, '/home-preview');
+                },
+              ),
+
               const SizedBox(height: 24),
               SizedBox(
                 height: 48,

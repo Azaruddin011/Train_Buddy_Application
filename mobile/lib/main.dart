@@ -17,6 +17,7 @@ import 'screens/offer_seat_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/settings_screen.dart';
 import 'screens/help_screen.dart';
+import 'screens/home_preview_screen.dart';
 import 'services/token_store.dart';
 import 'widgets/offline_banner.dart';
 
@@ -50,6 +51,7 @@ class TrainBuddyApp extends StatelessWidget {
         '/profile': (context) => const ProfileScreen(),
         '/settings': (context) => const SettingsScreen(),
         '/help': (context) => const HelpScreen(),
+        '/home-preview': (context) => const HomePreviewScreen(),
         '/pnr': (context) => const PnrInputScreen(),
         '/journey-clarity': (context) => const JourneyClarityScreen(),
         '/find-buddy-intro': (context) => const FindBuddyIntroScreen(),
