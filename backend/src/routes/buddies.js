@@ -8,6 +8,20 @@ const VerifiedJourney = require('../models/verifiedJourney');
 const BuddyRequest = require('../models/buddyRequest');
 const User = require('../models/user');
 
+function computeAge(dob) {
+  if (!dob) return null;
+  const d = dob instanceof Date ? dob : new Date(dob);
+  if (Number.isNaN(d.getTime())) return null;
+  const now = new Date();
+  let age = now.getFullYear() - d.getFullYear();
+  const m = now.getMonth() - d.getMonth();
+  if (m < 0 || (m === 0 && now.getDate() < d.getDate())) {
+    age -= 1;
+  }
+  if (age < 0 || age > 150) return null;
+  return age;
+}
+
 function ensurePremium(req, res, next) {
   const hasPremium = true;
   if (!hasPremium) {
@@ -71,16 +85,17 @@ router.post('/search', auth, requireVerifiedPnr(), ensurePremium, async (req, re
 
     const phones = candidates.map((c) => c.phoneNumber).filter(Boolean);
     const users = await User.find({ phoneNumber: { $in: phones } })
-      .select({ phoneNumber: 1, name: 1, ageGroup: 1 })
+      .select({ phoneNumber: 1, name: 1, dob: 1, age: 1 })
       .lean();
     const phoneToUser = new Map(users.map((u) => [u.phoneNumber, u]));
 
     const buddies = candidates.map((c) => {
       const u = phoneToUser.get(c.phoneNumber);
+      const age = (u?.age !== undefined && u?.age !== null) ? u.age : computeAge(u?.dob);
       return {
         id: String(c._id),
         displayName: (u?.name && u.name.trim()) ? u.name.trim() : maskPhone(c.phoneNumber),
-        ageGroup: u?.ageGroup || 'N/A',
+        age: (age !== undefined && age !== null) ? age : null,
         gender: 'N/A',
         languages: ['en'],
         from: (c.journey?.from || '').toString(),

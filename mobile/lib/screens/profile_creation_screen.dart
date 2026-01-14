@@ -28,9 +28,7 @@ class _ProfileCreationScreenState extends State<ProfileCreationScreen> with Sing
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _aadhaarController = TextEditingController();
-  
-  String _selectedAgeGroup = '18-25';
-  final List<String> _ageGroups = ['Under 18', '18-25', '26-35', '36-50', 'Above 50'];
+  DateTime? _selectedDob;
   
   File? _profileImage;
   final _emergencyContactController = TextEditingController();
@@ -116,7 +114,7 @@ class _ProfileCreationScreenState extends State<ProfileCreationScreen> with Sing
         phoneNumber: widget.phoneNumber,
         name: _nameController.text,
         email: _emailController.text.isNotEmpty ? _emailController.text : null,
-        ageGroup: _selectedAgeGroup,
+        dob: _selectedDob,
         emergencyContact: _emergencyContactController.text,
         aadhaarNumber: _aadhaarController.text.isNotEmpty ? _aadhaarController.text : null,
       );
@@ -442,46 +440,63 @@ class _ProfileCreationScreenState extends State<ProfileCreationScreen> with Sing
           },
         ),
         const SizedBox(height: 24),
-        
-        // Age group dropdown
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: Colors.white.withOpacity(0.2),
-              width: 1,
-            ),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              value: _selectedAgeGroup,
-              icon: Icon(Icons.arrow_drop_down, color: Colors.white.withOpacity(0.7)),
-              iconSize: 24,
-              elevation: 16,
-              dropdownColor: const Color(0xFF303F9F),
-              style: const TextStyle(color: Colors.white),
-              isExpanded: true,
-              hint: Text(
-                'Select Age Group',
-                style: TextStyle(color: Colors.white.withOpacity(0.7)),
+        _buildDobPicker(),
+      ],
+    );
+  }
+
+  Widget _buildDobPicker() {
+    final label = _selectedDob == null
+        ? 'Date of Birth'
+        : '${_selectedDob!.day.toString().padLeft(2, '0')}/${_selectedDob!.month.toString().padLeft(2, '0')}/${_selectedDob!.year}';
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.2),
+          width: 1,
+        ),
+      ),
+      child: InkWell(
+        onTap: () async {
+          final now = DateTime.now();
+          final picked = await showDatePicker(
+            context: context,
+            initialDate: _selectedDob ?? DateTime(now.year - 22, now.month, now.day),
+            firstDate: DateTime(1900, 1, 1),
+            lastDate: now,
+          );
+
+          if (picked != null) {
+            setState(() {
+              _selectedDob = picked;
+            });
+          }
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          child: Row(
+            children: [
+              Icon(Icons.cake_outlined, color: Colors.white.withOpacity(0.7)),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    color: _selectedDob == null ? Colors.white.withOpacity(0.7) : Colors.white,
+                    fontSize: 16,
+                  ),
+                ),
               ),
-              onChanged: (String? newValue) {
-                setState(() {
-                  _selectedAgeGroup = newValue!;
-                });
-              },
-              items: _ageGroups.map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-            ),
+              Icon(Icons.calendar_month, color: Colors.white.withOpacity(0.7)),
+            ],
           ),
         ),
-      ],
+      ),
     );
   }
 

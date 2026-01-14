@@ -1,7 +1,7 @@
 class BuddyProfile {
   final String id;
   final String displayName;
-  final String ageGroup;
+  final int? age;
   final String gender;
   final List<String> languages;
   final String from;
@@ -10,7 +10,7 @@ class BuddyProfile {
   BuddyProfile({
     required this.id,
     required this.displayName,
-    required this.ageGroup,
+    required this.age,
     required this.gender,
     required this.languages,
     required this.from,
@@ -21,7 +21,7 @@ class BuddyProfile {
     return BuddyProfile(
       id: json['id'],
       displayName: json['displayName'],
-      ageGroup: json['ageGroup'],
+      age: (json['age'] is num) ? (json['age'] as num).toInt() : null,
       gender: json['gender'],
       languages: List<String>.from(json['languages']),
       from: json['from'],

@@ -36,6 +36,7 @@ router.post('/profile', authMiddleware, extractPhoneNumber, async (req, res, nex
     const userData = {
       name: req.body.name,
       email: req.body.email,
+      dob: req.body.dob,
       ageGroup: req.body.ageGroup,
       emergencyContact: req.body.emergencyContact,
       aadhaarNumber: req.body.aadhaarNumber

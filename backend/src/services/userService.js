@@ -3,6 +3,20 @@ const User = require('../models/user');
 const ApiError = require('../utils/apiError');
 
 class UserService {
+  _computeAge(dob) {
+    if (!dob) return null;
+    const d = dob instanceof Date ? dob : new Date(dob);
+    if (Number.isNaN(d.getTime())) return null;
+    const now = new Date();
+    let age = now.getFullYear() - d.getFullYear();
+    const m = now.getMonth() - d.getMonth();
+    if (m < 0 || (m === 0 && now.getDate() < d.getDate())) {
+      age -= 1;
+    }
+    if (age < 0 || age > 150) return null;
+    return age;
+  }
+
   /**
    * Create a new user or update if exists
    * @param {string} phoneNumber - User's phone number
@@ -28,7 +42,21 @@ class UserService {
       // Update user fields if provided
       if (userData.name) user.name = userData.name;
       if (userData.email) user.email = userData.email;
-      if (userData.ageGroup) user.ageGroup = userData.ageGroup;
+      if (userData.dob) {
+        const dob = userData.dob instanceof Date ? userData.dob : new Date(userData.dob);
+        if (!Number.isNaN(dob.getTime())) {
+          user.dob = dob;
+          const age = this._computeAge(dob);
+          if (age !== null) {
+            user.age = age;
+            user.ageGroup = undefined;
+          }
+        }
+      }
+
+      // Backward compatibility: allow clients to still send ageGroup.
+      // If dob is present, dob-derived ageGroup takes priority.
+      if (userData.ageGroup && !user.dob) user.ageGroup = userData.ageGroup;
       if (userData.emergencyContact) user.emergencyContact = userData.emergencyContact;
       if (userData.aadhaarNumber) user.aadhaarNumber = userData.aadhaarNumber;
       
@@ -238,6 +266,8 @@ class UserService {
       aadhaarNumber: userData.aadhaarNumber || '',
       name: userData.name || '',
       email: userData.email || '',
+      dob: userData.dob || null,
+      age: userData.age || null,
       ageGroup: userData.ageGroup || '',
       emergencyContact: userData.emergencyContact || '',
       profileCompleteness: 20,

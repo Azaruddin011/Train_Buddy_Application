@@ -27,6 +27,14 @@ const userSchema = new mongoose.Schema({
     trim: true,
     lowercase: true,
   },
+  dob: {
+    type: Date,
+  },
+  age: {
+    type: Number,
+    min: 0,
+    max: 150,
+  },
   ageGroup: {
     type: String,
     enum: ['Under 18', '18-25', '26-35', '36-50', 'Above 50'],
@@ -100,7 +108,7 @@ userSchema.methods.calculateProfileCompleteness = function() {
   // Basic info - 50% of total
   if (this.name) completeness += 12.5;
   if (this.email) completeness += 12.5;
-  if (this.ageGroup) completeness += 12.5;
+  if (this.dob || this.age !== undefined) completeness += 12.5;
   if (this.profilePhotoUrl) completeness += 12.5;
   
   // Emergency contact - 12.5%

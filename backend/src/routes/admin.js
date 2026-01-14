@@ -73,7 +73,7 @@ router.get('/users', adminAuth, async (req, res, next) => {
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
-      .select({ __v: 0 })
+      .select({ __v: 0, ageGroup: 0 })
       .lean();
 
     const total = await User.countDocuments(filter);
@@ -102,7 +102,7 @@ router.get('/users/export', adminAuth, async (req, res, next) => {
 
     const users = await User.find(filter)
       .sort({ createdAt: -1 })
-      .select({ __v: 0 })
+      .select({ __v: 0, ageGroup: 0 })
       .lean();
 
     if (format === 'csv') {
@@ -114,7 +114,7 @@ router.get('/users/export', adminAuth, async (req, res, next) => {
         return s;
       };
 
-      const header = ['_id', 'phoneNumber', 'name', 'email', 'aadhaarNumber', 'ageGroup', 'emergencyContact', 'profilePhotoUrl', 'profileCompleteness', 'createdAt', 'updatedAt'];
+      const header = ['_id', 'phoneNumber', 'name', 'email', 'aadhaarNumber', 'dob', 'age', 'emergencyContact', 'profilePhotoUrl', 'profileCompleteness', 'createdAt', 'updatedAt'];
       const lines = [header.join(',')];
       for (const u of users) {
         const row = header.map((k) => escapeCsv(u[k]));
@@ -225,7 +225,8 @@ router.get('/panel', adminPanelAccess, (req, res) => {
                 <th>Name</th>
                 <th>Email</th>
                 <th>Aadhaar</th>
-                <th>Age Group</th>
+                <th>DOB</th>
+                <th>Age</th>
                 <th>Emergency</th>
                 <th>Profile %</th>
                 <th>Created</th>
@@ -410,7 +411,8 @@ router.get('/panel', adminPanelAccess, (req, res) => {
               '<td>' + (u.name || '') + '</td>' +
               '<td class="muted">' + (u.email || '') + '</td>' +
               '<td class="muted">' + (u.aadhaarNumber || '') + '</td>' +
-              '<td class="muted">' + (u.ageGroup || '') + '</td>' +
+              '<td class="muted">' + (u.dob ? new Date(u.dob).toLocaleDateString() : '') + '</td>' +
+              '<td class="muted">' + ((u.age !== undefined && u.age !== null) ? u.age : '') + '</td>' +
               '<td class="muted">' + (u.emergencyContact || '') + '</td>' +
               '<td class="muted">' + ((u.profileCompleteness !== undefined && u.profileCompleteness !== null) ? u.profileCompleteness : '') + '</td>' +
               '<td class="muted">' + fmtDate(u.createdAt) + '</td>' +
@@ -449,7 +451,7 @@ router.get('/users/by-phone/:phone', adminAuth, async (req, res, next) => {
       throw new ApiError('INVALID_PARAMETERS', 'Phone number is required', 400);
     }
 
-    const user = await User.findOne({ phoneNumber: phone }).select({ __v: 0 }).lean();
+    const user = await User.findOne({ phoneNumber: phone }).select({ __v: 0, ageGroup: 0 }).lean();
     if (!user) {
       throw new ApiError('USER_NOT_FOUND', 'User not found', 404);
     }
@@ -463,7 +465,7 @@ router.get('/users/by-phone/:phone', adminAuth, async (req, res, next) => {
 router.get('/users/:id', adminAuth, async (req, res, next) => {
   try {
     const { id } = req.params;
-    const user = await User.findById(id).select({ __v: 0 }).lean();
+    const user = await User.findById(id).select({ __v: 0, ageGroup: 0 }).lean();
     if (!user) {
       throw new ApiError('USER_NOT_FOUND', 'User not found', 404);
     }

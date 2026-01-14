@@ -150,6 +150,8 @@ class _BuddyCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ageText = (buddy.age != null) ? buddy.age.toString() : 'N/A';
+
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8.0),
       child: Padding(
@@ -176,7 +178,7 @@ class _BuddyCard extends StatelessWidget {
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 8),
-            Text('Age: ${buddy.ageGroup} • Gender: ${buddy.gender}'),
+            Text('Age: $ageText • Gender: ${buddy.gender}'),
             const SizedBox(height: 4),
             Text('Languages: ${buddy.languages.join(', ')}'),
             const SizedBox(height: 8),

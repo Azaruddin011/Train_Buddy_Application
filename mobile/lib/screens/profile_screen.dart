@@ -29,9 +29,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final _emailController = TextEditingController();
   final _aadhaarController = TextEditingController();
   final _emergencyContactController = TextEditingController();
-
-  String _selectedAgeGroup = '18-25';
-  final List<String> _ageGroups = ['Under 18', '18-25', '26-35', '36-50', 'Above 50'];
+  DateTime? _selectedDob;
 
   @override
   void initState() {
@@ -71,9 +69,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _aadhaarController.text = (user['aadhaarNumber'] ?? '').toString();
         _emergencyContactController.text = (user['emergencyContact'] ?? '').toString();
 
-        final age = (user['ageGroup'] ?? '').toString();
-        if (_ageGroups.contains(age)) {
-          _selectedAgeGroup = age;
+        final rawDob = user['dob'];
+        if (rawDob != null) {
+          try {
+            final parsed = DateTime.tryParse(rawDob.toString());
+            if (parsed != null) {
+              _selectedDob = parsed;
+            }
+          } catch (_) {
+            // ignore
+          }
         }
       }
 
@@ -117,7 +122,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final res = await _userService.updateProfile(
         name: _nameController.text.trim(),
         email: _emailController.text.trim().isNotEmpty ? _emailController.text.trim() : null,
-        ageGroup: _selectedAgeGroup,
+        dob: _selectedDob,
         emergencyContact: _emergencyContactController.text.trim().isNotEmpty
             ? _emergencyContactController.text.trim()
             : null,
@@ -194,6 +199,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final photoUrl = _absolutePhotoUrl();
+
+    final dobLabel = _selectedDob == null
+        ? 'Select date'
+        : '${_selectedDob!.day.toString().padLeft(2, '0')}/${_selectedDob!.month.toString().padLeft(2, '0')}/${_selectedDob!.year}';
 
     return Scaffold(
       appBar: AppBar(
@@ -302,21 +311,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           },
                         ),
                         const SizedBox(height: 12),
-                        DropdownButtonFormField<String>(
-                          value: _selectedAgeGroup,
-                          decoration: const InputDecoration(
-                            labelText: 'Age Group',
-                            border: OutlineInputBorder(),
-                          ),
-                          items: _ageGroups
-                              .map((e) => DropdownMenuItem<String>(value: e, child: Text(e)))
-                              .toList(),
-                          onChanged: (v) {
-                            if (v == null) return;
-                            setState(() {
-                              _selectedAgeGroup = v;
-                            });
+                        InkWell(
+                          onTap: () async {
+                            final now = DateTime.now();
+                            final picked = await showDatePicker(
+                              context: context,
+                              initialDate: _selectedDob ?? DateTime(now.year - 22, now.month, now.day),
+                              firstDate: DateTime(1900, 1, 1),
+                              lastDate: now,
+                            );
+                            if (picked != null) {
+                              setState(() {
+                                _selectedDob = picked;
+                              });
+                            }
                           },
+                          child: InputDecorator(
+                            decoration: const InputDecoration(
+                              labelText: 'Date of Birth',
+                              border: OutlineInputBorder(),
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(child: Text(dobLabel)),
+                                const Icon(Icons.calendar_month),
+                              ],
+                            ),
+                          ),
                         ),
                         const SizedBox(height: 12),
                         TextFormField(
