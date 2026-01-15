@@ -6,6 +6,9 @@ const { v2: cloudinary } = require('cloudinary');
 const userService = require('../services/userService');
 const authMiddleware = require('../middleware/auth');
 const ApiError = require('../utils/apiError');
+const VerifiedJourney = require('../models/verifiedJourney');
+const BuddyRequest = require('../models/buddyRequest');
+const User = require('../models/user');
 
 // Middleware to extract phone number from token
 const extractPhoneNumber = (req, res, next) => {
@@ -25,6 +28,28 @@ router.get('/profile', authMiddleware, extractPhoneNumber, async (req, res, next
   try {
     const result = await userService.getUserProfile(req.phoneNumber);
     res.json(result);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Delete account
+router.delete('/account', authMiddleware, extractPhoneNumber, async (req, res, next) => {
+  try {
+    const phoneNumber = req.phoneNumber;
+
+    if (typeof phoneNumber !== 'string' || !phoneNumber.trim()) {
+      throw new ApiError('MISSING_PHONE', 'Phone number is required', 400);
+    }
+
+    await Promise.all([
+      VerifiedJourney.deleteMany({ phoneNumber }),
+      BuddyRequest.deleteMany({ $or: [{ fromPhoneNumber: phoneNumber }, { toPhoneNumber: phoneNumber }] }),
+    ]);
+
+    await User.deleteOne({ phoneNumber });
+
+    res.json({ success: true });
   } catch (error) {
     next(error);
   }

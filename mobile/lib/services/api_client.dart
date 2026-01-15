@@ -60,6 +60,28 @@ class ApiClient {
     });
   }
 
+  /// Delete request with retry mechanism
+  Future<Map<String, dynamic>> delete(
+    String path, {
+    Map<String, String>? headers,
+  }) async {
+    final token = tokenProvider();
+    final requestHeaders = {
+      'Content-Type': 'application/json',
+      if (token != null) 'Authorization': 'Bearer $token',
+      ...?headers,
+    };
+
+    return _executeWithRetry(() async {
+      final response = await http.delete(
+        Uri.parse('$baseUrl$path'),
+        headers: requestHeaders,
+      );
+
+      return _handleResponse(response);
+    });
+  }
+
   /// Get request with offline handling and retry mechanism
   Future<Map<String, dynamic>> get(
     String path, {

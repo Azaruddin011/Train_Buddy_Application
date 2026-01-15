@@ -14,6 +14,7 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   late final UserService _userService;
+  late final ApiClient _apiClient;
   late Future<Map<String, dynamic>> _future;
 
   bool _saving = false;
@@ -35,8 +36,51 @@ class _SettingsScreenState extends State<SettingsScreen> {
       baseUrl: AppConfig.backendBaseUrl,
       tokenProvider: () => TokenStore.token,
     );
+    _apiClient = apiClient;
     _userService = UserService(apiClient: apiClient);
     _future = _userService.getProfile();
+  }
+
+  Future<void> _deleteAccount() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          title: const Text('Delete account?'),
+          content: const Text('This will permanently delete your account and related data. This action cannot be undone.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true) return;
+
+    setState(() {
+      _saving = true;
+      _error = null;
+      _success = null;
+    });
+
+    try {
+      await _apiClient.delete('/users/account');
+      await TokenStore.clear();
+      if (!mounted) return;
+      Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+    } catch (e) {
+      setState(() {
+        _saving = false;
+        _error = e.toString();
+      });
+    }
   }
 
   void _hydrateFromProfile(Map<String, dynamic>? user) {
@@ -245,6 +289,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         )
                       : const Text('Save'),
                 ),
+              ),
+
+              const SizedBox(height: 28),
+              const Divider(),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.delete_forever, color: Colors.red),
+                title: const Text('Delete account', style: TextStyle(color: Colors.red)),
+                subtitle: const Text('Permanently delete your account'),
+                onTap: _saving ? null : _deleteAccount,
               ),
             ],
           );
