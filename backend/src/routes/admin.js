@@ -136,6 +136,9 @@ router.get('/users/export', adminAuth, async (req, res, next) => {
 });
 
 router.get('/panel', adminPanelAccess, (req, res) => {
+  res.setHeader('cache-control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('pragma', 'no-cache');
+  res.setHeader('expires', '0');
   res.setHeader('content-type', 'text/html; charset=utf-8');
   res.send(`<!doctype html>
 <html lang="en">
