@@ -116,7 +116,7 @@ class _ProfileCreationScreenState extends State<ProfileCreationScreen> with Sing
         email: _emailController.text.isNotEmpty ? _emailController.text : null,
         dob: _selectedDob,
         emergencyContact: _emergencyContactController.text,
-        aadhaarNumber: _aadhaarController.text.isNotEmpty ? _aadhaarController.text : null,
+        aadhaarNumber: _aadhaarController.text,
       );
       
       // Update profile photo if selected
@@ -425,16 +425,21 @@ class _ProfileCreationScreenState extends State<ProfileCreationScreen> with Sing
 
         _buildInputField(
           controller: _aadhaarController,
-          labelText: 'Aadhaar Number (Optional)',
+          labelText: 'Aadhaar Number',
           hintText: 'Enter 12-digit Aadhaar number',
           icon: Icons.badge_outlined,
           keyboardType: TextInputType.number,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+            LengthLimitingTextInputFormatter(12),
+          ],
           validator: (value) {
-            if (value != null && value.isNotEmpty) {
-              final digitsOnly = value.replaceAll(RegExp(r'\D'), '');
-              if (digitsOnly.length != 12) {
-                return 'Please enter a valid 12-digit Aadhaar number';
-              }
+            if (value == null || value.isEmpty) {
+              return 'Please enter your 12-digit Aadhaar number';
+            }
+            final digitsOnly = value.replaceAll(RegExp(r'\D'), '');
+            if (digitsOnly.length != 12) {
+              return 'Please enter a valid 12-digit Aadhaar number';
             }
             return null;
           },

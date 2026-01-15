@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../config/app_config.dart';
@@ -296,16 +297,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         TextFormField(
                           controller: _aadhaarController,
                           keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                            LengthLimitingTextInputFormatter(12),
+                          ],
                           decoration: const InputDecoration(
-                            labelText: 'Aadhaar Number (Optional)',
+                            labelText: 'Aadhaar Number',
                             border: OutlineInputBorder(),
                           ),
                           validator: (value) {
-                            if (value != null && value.trim().isNotEmpty) {
-                              final digitsOnly = value.replaceAll(RegExp(r'\D'), '');
-                              if (digitsOnly.length != 12) {
-                                return 'Please enter a valid 12-digit Aadhaar number';
-                              }
+                            if (value == null || value.trim().isEmpty) {
+                              return 'Please enter your 12-digit Aadhaar number';
+                            }
+                            final digitsOnly = value.replaceAll(RegExp(r'\D'), '');
+                            if (digitsOnly.length != 12) {
+                              return 'Please enter a valid 12-digit Aadhaar number';
                             }
                             return null;
                           },

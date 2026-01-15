@@ -38,6 +38,24 @@ class UserService {
       if (!user) {
         user = new User({ phoneNumber });
       }
+
+      // Aadhaar validation: mandatory 12 digits (especially for first-time profile completion).
+      // Existing users who already have aadhaarNumber can update other fields without resending it.
+      if (!user.aadhaarNumber) {
+        const raw = (userData.aadhaarNumber ?? '').toString();
+        const digitsOnly = raw.replace(/\D/g, '');
+        if (!digitsOnly || digitsOnly.length !== 12) {
+          throw new ApiError('INVALID_AADHAAR', 'Aadhaar number is required and must be exactly 12 digits', 400);
+        }
+        user.aadhaarNumber = digitsOnly;
+      } else if (userData.aadhaarNumber !== undefined) {
+        const raw = (userData.aadhaarNumber ?? '').toString();
+        const digitsOnly = raw.replace(/\D/g, '');
+        if (!digitsOnly || digitsOnly.length !== 12) {
+          throw new ApiError('INVALID_AADHAAR', 'Aadhaar number must be exactly 12 digits', 400);
+        }
+        user.aadhaarNumber = digitsOnly;
+      }
       
       // Update user fields if provided
       if (userData.name) user.name = userData.name;
@@ -58,7 +76,6 @@ class UserService {
       // If dob is present, dob-derived ageGroup takes priority.
       if (userData.ageGroup && !user.dob) user.ageGroup = userData.ageGroup;
       if (userData.emergencyContact) user.emergencyContact = userData.emergencyContact;
-      if (userData.aadhaarNumber) user.aadhaarNumber = userData.aadhaarNumber;
       
       // Calculate profile completeness
       user.calculateProfileCompleteness();
